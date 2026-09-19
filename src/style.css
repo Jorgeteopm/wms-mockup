@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+@layer components {
+  /* Sideways-scrolling strip (tab bars on narrow screens) without a visible scrollbar. */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .form-label {
+    @apply text-sm font-semibold text-slate-700;
+  }
+
+  /* Small uppercase label: section dividers and centred search fields. */
+  .form-label-sm {
+    @apply text-xs font-semibold text-slate-500 uppercase tracking-wide;
+  }
+
+  /* Section divider inside a panel of grouped fields. */
+  .group-label {
+    @apply text-xs font-bold uppercase tracking-wide text-slate-400
+           pt-2 pb-1 border-b border-slate-100;
+  }
+
+  /* The Chinese half of a bilingual label — a suffix, never a replacement. */
+  .label-zh {
+    @apply text-xs font-normal text-slate-400 ml-1;
+  }
+
+  .form-input {
+    @apply w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-sm text-slate-800
+           placeholder:text-slate-300 transition-colors
+           focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50
+           disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed;
+  }
+
+  .form-input.is-static {
+    @apply bg-slate-50 text-slate-400 cursor-not-allowed;
+  }
+
+  /* Borderless input that lives inside a table cell. */
+  .table-input {
+    @apply w-full border-none bg-transparent text-sm text-slate-800
+           placeholder:text-slate-300 focus:outline-none px-2 py-1
+           disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed;
+  }
+}
+
+.toast-enter-active,
+.toast-leave-active { transition: all 0.3s ease; }
+.toast-enter-from,
+.toast-leave-to     { opacity: 0; transform: translateY(100%); }
+
+.scan-panel { position: relative; }
+.scan-panel.scan-pulse::before,
+.scan-panel.scan-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.75rem;
+  border: 2px solid #10b981;
+  opacity: 0.9;
+  pointer-events: none;
+  animation: scan-wave 1s ease-out;
+}
+.scan-panel.scan-pulse::after { animation-delay: 0.25s; }
+@keyframes scan-wave {
+  0%   { transform: scale(1);     opacity: 0.9; }
+  100% { transform: scale(1.05);  opacity: 0; }
+}

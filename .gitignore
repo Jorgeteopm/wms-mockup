@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# build output (regenerate with: npm run standalone)
+dist/
+
+# local env / editor
+.env
+.env.local
+*.local
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
