@@ -58,6 +58,14 @@
           Log Report
         </router-link>
         <router-link
+          v-if="hasRole(user, 'admin', 'approver')"
+          to="/admin/reports/builder"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-red-600"
+        >
+          Reports
+        </router-link>
+        <router-link
           to="/"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-red-600"

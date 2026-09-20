@@ -67,9 +67,24 @@ signed, the dashboard shows who we await next, and `transmittalStatus` flips to
 | Transmittal (completed) | `#/transmittal/TR-1041` |
 | Dashboard | `#/admin/transmittals` |
 | Log Report | `#/admin/reports/transmittal-log` |
+| Report Builder | `#/admin/reports/builder` |
 | User Management | `#/admin/users` |
 | Pinnacle Peak — New Inbound / Materials List | `#/inbound` · `#/materials-list` |
 | Laydown Yard portal | `#/laydown-portal` |
+
+### Report Builder (`Reports` in the nav)
+
+Build custom reports and export them:
+
+- **Data sources:** Transmittals, Inventory, Inbound Receipts, Users.
+- Pick **columns**, apply **filters** (system, status, category, condition,
+  date range, free-text search), and optionally **group / summarize**
+  (e.g. count and sum per system or category).
+- **Export to Excel (.xlsx)** — a real spreadsheet — and **PDF** (opens the
+  print dialog → Save as PDF). Both work offline.
+- **Quick templates:** Pending Approvals, Late / No-Show Pickups, Throughput by
+  System, Low Stock, Inventory by System, Damaged Receipts, Users by System.
+- Reports honor system access: an approver only reports on their own system.
 
 *(Camera barcode scanning is the only feature that needs internet; manual entry
 works offline. Rose Garden Materials is a "Coming soon" placeholder.)*

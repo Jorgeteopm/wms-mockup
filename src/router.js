@@ -9,6 +9,7 @@ import ResetPasswordView  from './views/ResetPasswordView.vue'
 import UsersView         from './views/admin/UsersView.vue'
 import TransmittalsView  from './views/admin/TransmittalsView.vue'
 import TransmittalLogReportView from './views/admin/TransmittalLogReportView.vue'
+import ReportBuilderView from './views/admin/ReportBuilderView.vue'
 import InboundView       from './views/InboundView.vue'
 import ReprintLabelsView from './views/ReprintLabelsView.vue'
 import MaterialsDbView from './views/MaterialsDbView.vue'
@@ -49,6 +50,11 @@ const router = createRouter({
     {
       path:      '/admin/reports/transmittal-log',
       component: TransmittalLogReportView,
+      meta:      { requiresReporting: true }
+    },
+    {
+      path:      '/admin/reports/builder',
+      component: ReportBuilderView,
       meta:      { requiresReporting: true }
     }
   ]
