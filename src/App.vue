@@ -9,6 +9,16 @@
         <span :class="ROLE_COLORS[user.role]" class="px-2 py-0.5 rounded-full text-xs font-semibold capitalize">
           {{ user.role }}
         </span>
+        <span
+          v-if="user.system"
+          class="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700"
+          title="You only see data for this system"
+        >{{ user.system }}</span>
+        <span
+          v-else
+          class="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500"
+          title="Admin — sees all systems"
+        >All systems</span>
       </div>
 
       <!-- Signed out: nothing to identify, so the bar holds only the way in. -->

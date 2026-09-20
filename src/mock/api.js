@@ -56,6 +56,11 @@ function pdfBlob() {
 // STATIC REFERENCE DATA (read-only — never persisted)
 // ===========================================================================
 
+// Systems drive access control: a user assigned to a system only sees the
+// transmittals and products of that system; admins (no system) see everything.
+const SYSTEMS = ['UPW', 'Water', 'CDS', 'WCCS', 'SDS', 'Barcode', 'TMAH', 'CCTV']
+function systemForIndex(i) { return SYSTEMS[i % SYSTEMS.length] }
+
 const materials = [
   { partNumber: 'PVC-2IN-SCH40',  description: '2" PVC Pipe Schedule 40',   product: 'Piping',      type: 'Pipe',     unit: 'FT',   brand: 'Charlotte', warehouse: 'Pinnacle Peak' },
   { partNumber: 'CU-3-4-TYPEL',   description: '3/4" Copper Pipe Type L',    product: 'Piping',      type: 'Pipe',     unit: 'FT',   brand: 'Mueller',   warehouse: 'Pinnacle Peak' },
@@ -73,6 +78,8 @@ const materials = [
   { partNumber: 'PAINT-EPOXY-GY', description: 'Grey Epoxy Coating 1gal',    product: 'Coatings',    type: 'Paint',    unit: 'EA',   brand: 'Sherwin',   warehouse: 'Pinnacle Peak' },
   { partNumber: 'TAPE-PTFE-1-2',  description: '1/2" PTFE Thread Tape',      product: 'Consumables', type: 'Tape',     unit: 'EA',   brand: '3M',        warehouse: 'Pinnacle Peak' },
 ]
+// Tag every catalogue product with a system (round-robin across SYSTEMS).
+materials.forEach((m, i) => { m.system = systemForIndex(i) })
 
 const materialStatuses = ['New', 'Good', 'Used', 'Damaged']
 const inboundLocations = ['Yard A', 'Yard B', 'Warehouse 1', 'Rack 3', 'Bay 7']
@@ -98,6 +105,7 @@ const inboundMaterialsList = materials.map((m, i) => ({
   unit: m.unit, location: [inboundLocations[i % inboundLocations.length]], condition: 'New',
   type: m.type, spec: picklists.specs[i % picklists.specs.length], brand: m.brand,
   category: m.product, supplier: picklists.suppliers[i % picklists.suppliers.length],
+  system: m.system,
 }))
 
 const materialsDbColumns = [
@@ -186,8 +194,10 @@ function buildSeedTransmittal(s) {
       datePickup: ['Warehouse', 'Completed'].includes(s.status) ? '2026-09-21' : '',
       urgency: !!s.urgency, urgencyLevel: s.urgencyLevel || 'Low / 低度', urgencyReason: s.urgency ? 'Critical path activity' : '',
       acknowledgeName: s.warehouseName || '', pickupTimeframe: ['Warehouse', 'Completed'].includes(s.status) ? '08:00 - 12:00' : '',
+      system: s.system || '',
     },
-    items: transmittalItems(seed).map(it => ({ ...it, transmittalStatus: s.transmittalStatus === 'Material Partially Delivered' ? 'Material Partially Delivered' : 'Open' })),
+    items: transmittalItems(seed).map(it => ({ ...it, system: s.system || '', transmittalStatus: s.transmittalStatus === 'Material Partially Delivered' ? 'Material Partially Delivered' : 'Open' })),
+    system: s.system || '',
     status: s.status,
     transmittalStatus: s.transmittalStatus,
     recipientStatus: s.recipientStatus || '',
@@ -200,25 +210,26 @@ function buildSeedTransmittal(s) {
 }
 
 const SEED_TRANSMITTALS = [
-  { rowId: 'TR-1042', company: 'Apex Mechanical', applicantName: 'Sofia Alvarez', requestorEmail: 'sofia@contractor.com', dateApplication: '2026-09-18', status: 'Approver',  transmittalStatus: 'Open',   recipientStatus: 'Pending',  urgency: true,  urgencyLevel: 'High / 高度',   approverName: 'Emily Chen' },
-  { rowId: 'TR-1041', company: 'Apex Mechanical', applicantName: 'Sofia Alvarez', requestorEmail: 'sofia@contractor.com', dateApplication: '2026-09-17', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Complete', urgency: false, urgencyLevel: 'Low / 低度',    approverName: 'Emily Chen',    warehouseName: 'Marcus Reyes', recipientName: 'Site Foreman', comments: 'Rush for Bldg C' },
-  { rowId: 'TR-1040', company: 'MIC',             applicantName: 'David Okafor',  requestorEmail: 'd.okafor@mic.com',     dateApplication: '2026-09-17', status: 'Requester', transmittalStatus: 'Open',   recipientStatus: 'Pending',  urgency: false, urgencyLevel: 'Medium / 中度' },
-  { rowId: 'TR-1039', company: 'Summit Builders', applicantName: 'Karen Wu',      requestorEmail: 'kwu@summit.com',       dateApplication: '2026-09-16', status: 'Completed', transmittalStatus: 'Material Partially Delivered', recipientStatus: 'Late', urgency: true, urgencyLevel: 'High / 高度', approverName: 'Emily Chen', warehouseName: 'Marcus Reyes', recipientName: 'Karen Wu', pdStage: 'acknowledgement' },
-  { rowId: 'TR-1038', company: 'MIC',             applicantName: 'David Okafor',  requestorEmail: 'd.okafor@mic.com',     dateApplication: '2026-09-15', status: 'Declined',  transmittalStatus: 'Open',   recipientStatus: '',         urgency: false, urgencyLevel: 'Low / 低度',    approverName: 'Emily Chen', declineReason: 'BOQ mismatch — resubmit with corrected quantities.' },
-  { rowId: 'TR-1037', company: 'Apex Mechanical', applicantName: 'Sofia Alvarez', requestorEmail: 'sofia@contractor.com', dateApplication: '2026-09-15', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Complete', urgency: false, urgencyLevel: 'Medium / 中度', approverName: 'Emily Chen', warehouseName: 'David Okafor', recipientName: 'Site Foreman' },
-  { rowId: 'TR-1036', company: 'Summit Builders', applicantName: 'Karen Wu',      requestorEmail: 'kwu@summit.com',       dateApplication: '2026-09-14', status: 'Requester', transmittalStatus: 'Open',   recipientStatus: 'Pending',  urgency: false, urgencyLevel: 'Low / 低度',    comments: 'Called recipient' },
-  { rowId: 'TR-1035', company: 'MIC',             applicantName: 'David Okafor',  requestorEmail: 'd.okafor@mic.com',     dateApplication: '2026-09-12', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Late',     urgency: false, urgencyLevel: 'Low / 低度',    approverName: 'Sofia Alvarez', warehouseName: 'Marcus Reyes', recipientName: 'Site Foreman' },
-  { rowId: 'TR-1034', company: 'Apex Mechanical', applicantName: 'Sofia Alvarez', requestorEmail: 'sofia@contractor.com', dateApplication: '2026-09-11', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Complete', urgency: true,  urgencyLevel: 'High / 高度',   approverName: 'Emily Chen', warehouseName: 'Marcus Reyes', recipientName: 'Site Foreman' },
+  { rowId: 'TR-1042', system: 'UPW',   company: 'Apex Mechanical', applicantName: 'Chris Bennett', requestorEmail: 'chris.bennett@apexmech.com', dateApplication: '2026-09-18', status: 'Approver',  transmittalStatus: 'Open',   recipientStatus: 'Pending',  urgency: true,  urgencyLevel: 'High / 高度',   approverName: 'Jennifer Adams' },
+  { rowId: 'TR-1041', system: 'Water', company: 'Apex Mechanical', applicantName: 'Chris Bennett', requestorEmail: 'chris.bennett@apexmech.com', dateApplication: '2026-09-17', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Complete', urgency: false, urgencyLevel: 'Low / 低度',    approverName: 'Emily Carter',   warehouseName: 'Robert Johnson', recipientName: 'Mark Davis', comments: 'Rush for Bldg C' },
+  { rowId: 'TR-1040', system: 'UPW',   company: 'MIC',             applicantName: 'Daniel Foster', requestorEmail: 'daniel.foster@mic.com',      dateApplication: '2026-09-17', status: 'Requester', transmittalStatus: 'Open',   recipientStatus: 'Pending',  urgency: false, urgencyLevel: 'Medium / 中度' },
+  { rowId: 'TR-1039', system: 'CDS',   company: 'Summit Builders', applicantName: 'Laura Bennett', requestorEmail: 'laura@summitbuilders.com',   dateApplication: '2026-09-16', status: 'Completed', transmittalStatus: 'Material Partially Delivered', recipientStatus: 'Late', urgency: true, urgencyLevel: 'High / 高度', approverName: 'Emily Carter', warehouseName: 'Robert Johnson', recipientName: 'Laura Bennett', pdStage: 'acknowledgement' },
+  { rowId: 'TR-1038', system: 'Water', company: 'MIC',             applicantName: 'Daniel Foster', requestorEmail: 'daniel.foster@mic.com',      dateApplication: '2026-09-15', status: 'Declined',  transmittalStatus: 'Open',   recipientStatus: '',         urgency: false, urgencyLevel: 'Low / 低度',    approverName: 'Emily Carter', declineReason: 'BOQ mismatch — resubmit with corrected quantities.' },
+  { rowId: 'TR-1037', system: 'UPW',   company: 'Apex Mechanical', applicantName: 'Chris Bennett', requestorEmail: 'chris.bennett@apexmech.com', dateApplication: '2026-09-15', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Complete', urgency: false, urgencyLevel: 'Medium / 中度', approverName: 'Jennifer Adams', warehouseName: 'Ashley Brown', recipientName: 'Mark Davis' },
+  { rowId: 'TR-1036', system: 'CDS',   company: 'Summit Builders', applicantName: 'Laura Bennett', requestorEmail: 'laura@summitbuilders.com',   dateApplication: '2026-09-14', status: 'Requester', transmittalStatus: 'Open',   recipientStatus: 'Pending',  urgency: false, urgencyLevel: 'Low / 低度',    comments: 'Called recipient' },
+  { rowId: 'TR-1035', system: 'WCCS',  company: 'MIC',             applicantName: 'Daniel Foster', requestorEmail: 'daniel.foster@mic.com',      dateApplication: '2026-09-12', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Late',     urgency: false, urgencyLevel: 'Low / 低度',    approverName: 'Emily Carter',  warehouseName: 'James Wilson',   recipientName: 'Mark Davis' },
+  { rowId: 'TR-1034', system: 'Water', company: 'Apex Mechanical', applicantName: 'Chris Bennett', requestorEmail: 'chris.bennett@apexmech.com', dateApplication: '2026-09-11', status: 'Completed', transmittalStatus: 'Closed', recipientStatus: 'Complete', urgency: true,  urgencyLevel: 'High / 高度',   approverName: 'Emily Carter', warehouseName: 'Robert Johnson', recipientName: 'Mark Davis' },
 ]
 
 function seedUsers() {
   return [
-    { id: 1, name: 'Jorge Martinez', email: 'jorge@teopm.com', company: 'TEOPM', phone: '+1 480 555 0142', role: 'admin',     canManageUsers: true,  isActive: true,  lastLoginAt: '2026-09-19T13:40:00Z' },
-    { id: 2, name: 'Emily Chen',     email: 'emily.chen@mic.com',   company: 'MIC',             phone: '+1 480 555 0110', role: 'approver',  canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-18T22:05:00Z' },
-    { id: 3, name: 'Marcus Reyes',   email: 'm.reyes@mic.com',      company: 'MIC',             phone: '+1 480 555 0133', role: 'warehouse', canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-19T11:12:00Z' },
-    { id: 4, name: 'Sofia Alvarez',  email: 'sofia@contractor.com', company: 'Apex Mechanical', phone: '+1 602 555 0198', role: 'approver',  canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-15T16:30:00Z' },
-    { id: 5, name: 'David Okafor',   email: 'd.okafor@mic.com',     company: 'MIC',             phone: '',                role: 'warehouse', canManageUsers: false, isActive: false, lastLoginAt: null },
-    { id: 6, name: 'QA Tester',      email: 'qa@teopm.com',         company: 'TEOPM',           phone: '',                role: 'testing',   canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-19T09:00:00Z' },
+    { id: 1, name: 'David Miller',    email: 'david.miller@teopm.com',   company: 'TEOPM', phone: '+1 480 555 0142', role: 'admin',     system: null,    canManageUsers: true,  isActive: true,  lastLoginAt: '2026-09-19T13:40:00Z' },
+    { id: 2, name: 'Jennifer Adams',  email: 'jennifer.adams@mic.com',   company: 'MIC',   phone: '+1 480 555 0110', role: 'approver',  system: 'UPW',   canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-18T22:05:00Z' },
+    { id: 3, name: 'Robert Johnson',  email: 'robert.johnson@mic.com',   company: 'MIC',   phone: '+1 480 555 0133', role: 'warehouse', system: 'Water', canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-19T11:12:00Z' },
+    { id: 4, name: 'Emily Carter',    email: 'emily.carter@mic.com',     company: 'MIC',   phone: '+1 602 555 0198', role: 'approver',  system: 'CDS',   canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-15T16:30:00Z' },
+    { id: 5, name: 'James Wilson',    email: 'james.wilson@mic.com',     company: 'MIC',   phone: '+1 480 555 0155', role: 'warehouse', system: 'WCCS',  canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-19T08:20:00Z' },
+    { id: 6, name: 'Ashley Brown',    email: 'ashley.brown@mic.com',     company: 'MIC',   phone: '+1 480 555 0177', role: 'warehouse', system: 'UPW',   canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-17T15:05:00Z' },
+    { id: 7, name: 'Sarah Thompson',  email: 'sarah.thompson@teopm.com', company: 'TEOPM', phone: '+1 480 555 0199', role: 'testing',   system: null,    canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-19T09:00:00Z' },
   ]
 }
 
@@ -232,17 +243,17 @@ function seedMaterialsDb() {
       brand: m.brand, supplier: picklists.suppliers[i % picklists.suppliers.length], category: m.product, unit: m.unit,
       location: [inboundLocations[i % inboundLocations.length], inboundLocations[(i + 2) % inboundLocations.length]].join(', '),
       remark: '', inventoryStatus: invStatusFor(qty), qtyOnHand: qty, totalInventory: qty,
-      attachmentCount: i % 3 === 0 ? 2 : 0, picture: null, barcode: null,
+      attachmentCount: i % 3 === 0 ? 2 : 0, picture: null, barcode: null, system: m.system,
     }
   })
 }
 
 function seedInbound() {
   return [
-    { rowId: 'INB-501', tpn: 'TPN-004501', barcodeTpn: 'TPN-004501', transmittalId: 'TR-1041', description1: '2" PVC Pipe', description2: 'Schedule 40', micPartNumber: 'MIC-0001', batch: 'B-2209', qty: 120, unit: 'FT', location: ['Yard A'],           condition: 'New',  remark: '',           type: 'Pipe',    spec: 'ASTM D1785', brand: 'Charlotte', category: 'Piping',     supplier: 'Ferguson' },
-    { rowId: 'INB-502', tpn: 'TPN-004502', barcodeTpn: 'TPN-004502', transmittalId: 'TR-1041', description1: 'Gate Valve',  description2: 'Flanged',     micPartNumber: 'MIC-0004', batch: 'B-2210', qty: 6,   unit: 'EA', location: ['Warehouse 1'],      condition: 'New',  remark: 'Palletized', type: 'Valve',   spec: 'ANSI 150#',  brand: 'Nibco',     category: 'Valves',     supplier: 'HD Supply' },
-    { rowId: 'INB-503', tpn: 'TPN-004503', barcodeTpn: 'TPN-004503', transmittalId: 'TR-1039', description1: 'THHN Wire',   description2: 'Black',       micPartNumber: 'MIC-0005', batch: 'B-2211', qty: 2500,unit: 'FT', location: ['Rack 3'],           condition: 'New',  remark: '',           type: 'Wire',    spec: 'UL Listed',  brand: 'Southwire', category: 'Electrical', supplier: 'Border States' },
-    { rowId: 'INB-504', tpn: 'TPN-004504', barcodeTpn: 'TPN-004504', transmittalId: '',        description1: 'EMT Conduit', description2: '3/4"',        micPartNumber: 'MIC-0003', batch: 'B-2212', qty: 40,  unit: 'EA', location: ['Yard B', 'Bay 7'],  condition: 'Used', remark: 'Minor rust', type: 'Conduit', spec: 'NEMA',       brand: 'Wheatland', category: 'Electrical', supplier: 'Grainger' },
+    { rowId: 'INB-501', system: 'UPW',   tpn: 'TPN-004501', barcodeTpn: 'TPN-004501', transmittalId: 'TR-1041', description1: '2" PVC Pipe', description2: 'Schedule 40', micPartNumber: 'MIC-0001', batch: 'B-2209', qty: 120, unit: 'FT', location: ['Yard A'],           condition: 'New',  remark: '',           type: 'Pipe',    spec: 'ASTM D1785', brand: 'Charlotte', category: 'Piping',     supplier: 'Ferguson' },
+    { rowId: 'INB-502', system: 'SDS',   tpn: 'TPN-004502', barcodeTpn: 'TPN-004502', transmittalId: 'TR-1041', description1: 'Gate Valve',  description2: 'Flanged',     micPartNumber: 'MIC-0004', batch: 'B-2210', qty: 6,   unit: 'EA', location: ['Warehouse 1'],      condition: 'New',  remark: 'Palletized', type: 'Valve',   spec: 'ANSI 150#',  brand: 'Nibco',     category: 'Valves',     supplier: 'HD Supply' },
+    { rowId: 'INB-503', system: 'Water', tpn: 'TPN-004503', barcodeTpn: 'TPN-004503', transmittalId: 'TR-1039', description1: 'THHN Wire',   description2: 'Black',       micPartNumber: 'MIC-0005', batch: 'B-2211', qty: 2500,unit: 'FT', location: ['Rack 3'],           condition: 'New',  remark: '',           type: 'Wire',    spec: 'UL Listed',  brand: 'Southwire', category: 'Electrical', supplier: 'Border States' },
+    { rowId: 'INB-504', system: 'UPW',   tpn: 'TPN-004504', barcodeTpn: 'TPN-004504', transmittalId: '',        description1: 'EMT Conduit', description2: '3/4"',        micPartNumber: 'MIC-0003', batch: 'B-2212', qty: 40,  unit: 'EA', location: ['Yard B', 'Bay 7'],  condition: 'Used', remark: 'Minor rust', type: 'Conduit', spec: 'NEMA',       brand: 'Wheatland', category: 'Electrical', supplier: 'Grainger' },
   ]
 }
 
@@ -256,15 +267,18 @@ function seedLaydown() {
 }
 
 function seedDb() {
+  const users = seedUsers()
   return {
-    version: 2,
-    currentUser: { id: 1, name: 'Jorge Martinez', email: 'jorge@teopm.com', company: 'TEOPM', phone: '+1 480 555 0142', role: 'admin', canManageUsers: true, isActive: true, lastLoginAt: '2026-09-19T13:40:00Z' },
+    version: 4,
+    // session.user = who is signed in (null = signed out → login screen).
+    // Default to the admin so the demo opens ready; sign out to try other users.
+    session: { user: users.find(u => u.role === 'admin') || users[0] },
     transmittals: SEED_TRANSMITTALS.map(buildSeedTransmittal),
-    users: seedUsers(),
+    users,
     materialsDb: seedMaterialsDb(),
     inbound: seedInbound(),
     laydown: seedLaydown(),
-    seq: { transmittal: 1043, inbound: 505, laydown: 9005, user: 7, laydownPn: 45 },
+    seq: { transmittal: 1043, inbound: 505, laydown: 9005, user: 8, laydownPn: 45 },
   }
 }
 
@@ -277,7 +291,7 @@ function loadDb() {
     const raw = localStorage.getItem(LS_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (parsed && Array.isArray(parsed.transmittals) && parsed.version === 2) return parsed
+      if (parsed && Array.isArray(parsed.transmittals) && parsed.version === 4) return parsed
     }
   } catch { /* ignore */ }
   const fresh = seedDb()
@@ -307,6 +321,26 @@ async function writeToFolder() {
 
 function findT(id) { return db.transmittals.find(t => String(t.rowId) === String(id)) }
 
+// --- access control ---------------------------------------------------------
+// The signed-in user only sees data for their system. Admin/testing (or any
+// user with no system) see everything.
+function sessionUser() {
+  return (db.session && db.session.user) || null
+}
+function seesAllSystems(u) {
+  return !u || u.role === 'admin' || u.role === 'testing' || !u.system
+}
+function visibleTransmittals() {
+  const u = sessionUser()
+  if (seesAllSystems(u)) return db.transmittals
+  return db.transmittals.filter(t => t.system === u.system)
+}
+function visibleBySystem(rows) {
+  const u = sessionUser()
+  if (seesAllSystems(u)) return rows
+  return rows.filter(r => !r.system || r.system === u.system)
+}
+
 function transmittalDetail(t) {
   const status = t.status
   return {
@@ -334,6 +368,7 @@ function dashboardRow(t) {
     company: t.form.company, applicantName: t.form.applicantName, requestorEmail: t.form.requestorEmail,
     dateApplication: t.form.dateApplication, status: t.status, transmittal_status: t.transmittalStatus,
     urgency: !!t.form.urgency, urgencyLevel: t.form.urgencyLevel || '',
+    system: t.system || t.form.system || '',
     approverName: t.signatureNames.approver || '', warehouseName: t.signatureNames.warehouse || '',
     recipientStatus: t.recipientStatus || '', declineReason: t.declineReason || '',
     transmittalUrl: `https://wms.example.com/transmittal/${t.rowId}`,
@@ -341,16 +376,17 @@ function dashboardRow(t) {
 }
 
 function adminKpis() {
+  const list = visibleTransmittals()
   const byStatus = { Requester: 0, Approver: 0, Warehouse: 0, Completed: 0, Declined: 0, 'PD Acknowledgement': 0, 'PD Sign-off': 0 }
-  db.transmittals.forEach(t => { byStatus[t.status] = (byStatus[t.status] || 0) + 1 })
+  list.forEach(t => { byStatus[t.status] = (byStatus[t.status] || 0) + 1 })
   const companies = {}, mats = {}
-  db.transmittals.forEach(t => {
+  list.forEach(t => {
     companies[t.form.company] = (companies[t.form.company] || 0) + 1
     t.items.forEach(it => { mats[it.description] = (mats[it.description] || 0) + 1 })
   })
   const top = (o) => Object.entries(o).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 4)
   return {
-    total: db.transmittals.length, byStatus,
+    total: list.length, byStatus,
     urgencyRate: 33, approvalRate: 88, avgApprovalHours: 6, avgCompletionHours: 41,
     submissionTrend: [
       { week: '2026-08-04', count: 5 }, { week: '2026-08-11', count: 7 }, { week: '2026-08-18', count: 6 }, { week: '2026-08-25', count: 9 },
@@ -367,7 +403,7 @@ function logReport() {
     { key: 'reason', label: 'Reason' }, { key: 'warehouseDate', label: 'Warehouse Date' }, { key: 'pickupDeadline', label: 'Pickup Deadline' },
     { key: 'pickupActual', label: 'Pickup Actual' }, { key: 'processingDays', label: 'Processing Days' }, { key: 'pickupStatus', label: 'Pickup Status' }, { key: 'urgencyLevel', label: 'Urgency' },
   ]
-  const rows = db.transmittals.map((t, i) => ({
+  const rows = visibleTransmittals().map((t, i) => ({
     transmittalId: t.rowId, recipient: t.signatureNames.recipient || t.form.applicantName, company: t.form.company,
     signatureStatus: t.status, transmittalStatus: t.transmittalStatus, recipientStatus: t.recipientStatus || '',
     reason: t.form.reason || 'Installation — Building C', warehouseDate: t.form.dateApplication, warehouseWeek: '2026-W38',
@@ -405,9 +441,14 @@ function computeRecipientStatus(t) {
 function createTransmittal(b) {
   const n = db.seq.transmittal++
   const rowId = 'TR-' + n
+  // A system-scoped user's transmittal is locked to their system; an admin can
+  // pick it in the form (b.system).
+  const u = sessionUser()
+  const system = (u && u.system) ? u.system : (b.system || '')
   const items = (b.items || []).map((it, i) => ({
     ...it,
     childRowId: `${rowId}-${i + 1}`,
+    system,
     transmittalStatus: 'Open',
     transferQty: (it.transferQty !== '' && it.transferQty != null) ? it.transferQty : it.qty,
     remarks: it.remarks || '',
@@ -420,9 +461,10 @@ function createTransmittal(b) {
       dateNeeded: b.dateNeeded || '', datePicking: b.datePicking || '', reason: b.reason || '', pickupLocation: b.pickupLocation || '',
       remark: b.remark || `MIC-${rowId}`, comments: b.comments || '', datePickup: b.datePickup || '',
       urgency: !!b.urgency, urgencyLevel: b.urgencyLevel || '', urgencyReason: b.urgencyReason || '',
-      acknowledgeName: '', pickupTimeframe: b.pickupTimeframe || '',
+      acknowledgeName: '', pickupTimeframe: b.pickupTimeframe || '', system,
     },
     items,
+    system,
     status: 'Requester',
     transmittalStatus: 'Open',
     recipientStatus: 'Pending',
@@ -469,26 +511,39 @@ function signTransmittal(t, b) {
 // ===========================================================================
 
 const routes = [
-  // --- auth ---
-  ['GET',  /^\/api\/auth\/me$/,              () => json({ user: db.currentUser })],
-  ['POST', /^\/api\/auth\/login$/,           async (_p, init) => { const b = await readBody(init); if (b.email) { db.currentUser.email = b.email; persist() } return json({ user: db.currentUser }) }],
-  ['POST', /^\/api\/auth\/logout$/,          () => json({})],
+  // --- auth (session-based: login by email switches the active user) ---
+  ['GET',  /^\/api\/auth\/me$/,              () => json({ user: sessionUser() })],
+  ['POST', /^\/api\/auth\/login$/,           async (_p, init) => {
+    const b = await readBody(init)
+    const email = String(b.email || '').trim()
+    let u = db.users.find(x => x.email.toLowerCase() === email.toLowerCase())
+    if (!u) {
+      // Forgiving demo: any other email signs in as a guest admin (sees all
+      // systems). Use the one-click demo accounts to show system-scoped access.
+      const nice = email ? email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Guest User'
+      u = { id: 0, name: nice || 'Guest User', email: email || 'guest@teopm.com', company: 'TEOPM', phone: '', role: 'admin', system: null, canManageUsers: false, isActive: true, lastLoginAt: null }
+    }
+    u.lastLoginAt = new Date().toISOString()
+    db.session.user = u; persist()
+    return json({ user: u })
+  }],
+  ['POST', /^\/api\/auth\/logout$/,          () => { db.session.user = null; persist(); return json({}) }],
   ['GET',  /^\/api\/auth\/verify$/,          () => json({ name: 'New User' })],
   ['POST', /^\/api\/auth\/verify$/,          () => json({ message: 'Account activated' })],
   ['POST', /^\/api\/auth\/forgot-password$/, () => json({ message: 'Email sent' })],
-  ['GET',  /^\/api\/auth\/reset-password$/,  () => json({ name: db.currentUser.name })],
+  ['GET',  /^\/api\/auth\/reset-password$/,  () => json({ name: (sessionUser() || {}).name || 'User' })],
   ['POST', /^\/api\/auth\/reset-password$/,  () => json({ message: 'Password reset' })],
 
   // --- users ---
   ['GET',    /^\/api\/users$/,               () => json({ users: db.users, total: db.users.length })],
-  ['POST',   /^\/api\/users$/,               async (_p, init) => { const b = await readBody(init); const u = { id: db.seq.user++, name: b.name || '', email: b.email || '', company: b.company || '', phone: b.phone || '', role: b.role || 'warehouse', canManageUsers: false, isActive: false, lastLoginAt: null }; db.users.push(u); persist(); return json({ message: 'Invitation sent' }) }],
+  ['POST',   /^\/api\/users$/,               async (_p, init) => { const b = await readBody(init); const u = { id: db.seq.user++, name: b.name || '', email: b.email || '', company: b.company || '', phone: b.phone || '', role: b.role || 'warehouse', system: b.system || null, canManageUsers: false, isActive: false, lastLoginAt: null }; db.users.push(u); persist(); return json({ message: 'Invitation sent' }) }],
   ['PATCH',  /^\/api\/users\/(\d+)\/can-manage$/, async (p, init) => { const b = await readBody(init); const u = db.users.find(x => x.id === Number(p[1])); if (u) { u.canManageUsers = !!b.canManageUsers; persist() } return json({ canManageUsers: !!b.canManageUsers }) }],
   ['POST',   /^\/api\/users\/(\d+)\/resend-invite$/, () => json({ message: 'Invite resent' })],
   ['PATCH',  /^\/api\/users\/(\d+)$/,        async (p, init) => { const b = await readBody(init); const u = db.users.find(x => x.id === Number(p[1])); if (u) { Object.assign(u, { name: b.name ?? u.name, company: b.company ?? u.company, phone: b.phone ?? u.phone, role: b.role ?? u.role, isActive: b.isActive ?? u.isActive }); persist() } return json({ message: 'User updated' }) }],
   ['DELETE', /^\/api\/users\/(\d+)$/,        (p) => { db.users = db.users.filter(x => x.id !== Number(p[1])); persist(); return json({ message: 'User deleted' }) }],
 
-  // --- materials catalog ---
-  ['GET', /^\/api\/materials$/,              () => json(materials)],
+  // --- materials catalog (filtered to the signed-in user's system) ---
+  ['GET', /^\/api\/materials$/,              () => json(visibleBySystem(materials))],
 
   // --- transmittal detail + writes (specific paths before the bare :id) ---
   ['GET',   /^\/api\/transmittals\/([^/]+)\/inbound-qty$/,       (p) => { const t = findT(p[1]); const m = {}; if (t) t.items.forEach(it => { m[it.partNumber] = it.qty }); return json(m) }],
@@ -507,7 +562,7 @@ const routes = [
   // --- admin dashboard / report ---
   ['GET', /^\/api\/admin\/kpis$/,                                () => json(adminKpis())],
   ['GET', /^\/api\/admin\/transmittals\/([^/]+)\/materials$/,    (p) => { const t = findT(p[1]); return json((t ? t.items : []).map(({ partNumber, type, description, product, qty, transferQty, remarks }) => ({ partNumber, type, description, product, qty, transferQty, remarks }))) }],
-  ['GET', /^\/api\/admin\/transmittals$/,                        () => json(db.transmittals.map(dashboardRow))],
+  ['GET', /^\/api\/admin\/transmittals$/,                        () => json(visibleTransmittals().map(dashboardRow))],
   ['GET', /^\/api\/admin\/reports\/transmittal-log$/,            () => json(logReport())],
 
   // --- labels ---
@@ -515,17 +570,17 @@ const routes = [
 
   // --- inbound / Pinnacle Peak ---
   ['GET',  /^\/api\/inbound\/material-statuses$/,   () => json(materialStatuses)],
-  ['GET',  /^\/api\/inbound\/materials-list$/,      () => json(inboundMaterialsList)],
+  ['GET',  /^\/api\/inbound\/materials-list$/,      () => json(visibleBySystem(inboundMaterialsList))],
   ['GET',  /^\/api\/inbound\/materials-picklists$/, () => json(picklists)],
   ['GET',  /^\/api\/inbound\/locations$/,           () => json(inboundLocations)],
   ['GET',  /^\/api\/inbound\/units$/,               () => json(inboundUnits)],
   ['GET',  /^\/api\/inbound\/next-tpn$/,            () => json({ nextTpn: `TPN-00${4500 + db.inbound.length}` })],
   ['POST', /^\/api\/inbound\/quarantine$/,          async (_p, init) => { const b = await readBody(init); addInbound(b, true); return json({ message: 'Material quarantined', failedPhotos: [] }) }],
   ['POST', /^\/api\/inbound$/,                       async (_p, init) => { const b = await readBody(init); const mat = addInbound(b, false); return json({ materialRowId: mat, message: 'Inbound recorded' }) }],
-  ['GET',  /^\/api\/inbound$/,                       () => json(db.inbound)],
+  ['GET',  /^\/api\/inbound$/,                       () => json(visibleBySystem(db.inbound))],
 
   // --- materials database ---
-  ['GET',   /^\/api\/materials-db\/records$/,              () => json({ records: db.materialsDb, columns: materialsDbColumns })],
+  ['GET',   /^\/api\/materials-db\/records$/,              () => json({ records: visibleBySystem(db.materialsDb), columns: materialsDbColumns })],
   ['POST',  /^\/api\/materials-db\/picture-urls$/,         () => json({ urls: {} })],
   ['GET',   /^\/api\/materials-db\/([^/]+)\/stock$/,       (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); return json({ totalInventory: r ? r.totalInventory : 0 }) }],
   ['POST',  /^\/api\/materials-db\/([^/]+)\/adjustments$/, async (p, init) => { const b = await readBody(init); const r = db.materialsDb.find(x => x.rowId === p[1]); if (r) { const d = (b.direction === 'negative' ? -1 : 1) * Number(b.quantity || 0); r.totalInventory = Math.max(0, r.totalInventory + d); r.qtyOnHand = r.totalInventory; r.inventoryStatus = invStatusFor(r.qtyOnHand); persist() } return json({ message: 'Stock adjusted' }) }],
@@ -560,8 +615,10 @@ const routes = [
 function addInbound(b, quarantine) {
   const n = db.seq.inbound++
   const tpn = b.tpn || `TPN-00${4500 + db.inbound.length}`
+  const u = sessionUser()
+  const system = (u && u.system) ? u.system : (b.system || '')
   const rec = {
-    rowId: `INB-${n}`, tpn, barcodeTpn: tpn, transmittalId: '',
+    rowId: `INB-${n}`, tpn, barcodeTpn: tpn, transmittalId: '', system,
     description1: b.description1 || '', description2: b.description2 || '', micPartNumber: b.micPartNumber || '',
     batch: b.batch || '', qty: Number(b.quantity || 0), unit: b.unit || '', location: Array.isArray(b.location) ? b.location : (b.location ? [b.location] : []),
     condition: b.condition || (quarantine ? 'Damaged' : 'New'), remark: b.remarks || '', type: b.type || '', spec: b.spec || '',
@@ -576,7 +633,7 @@ function addInbound(b, quarantine) {
       rowId: matRowId, tpn, description1: b.description1 || '', description2: b.description2 || '', micPartNumber: b.micPartNumber || '',
       type: b.type || '', spec: b.spec || '', brand: b.brand || '', supplier: b.supplier || '', category: b.category || '',
       unit: b.unit || '', location: Array.isArray(b.location) ? b.location.join(', ') : (b.location || ''), remark: b.remarks || '',
-      inventoryStatus: invStatusFor(qty), qtyOnHand: qty, totalInventory: qty, attachmentCount: 0, picture: null, barcode: null,
+      inventoryStatus: invStatusFor(qty), qtyOnHand: qty, totalInventory: qty, attachmentCount: 0, picture: null, barcode: null, system,
     })
   }
   persist()

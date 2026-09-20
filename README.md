@@ -9,7 +9,23 @@ store which **persists to the browser** and can be exported/imported as JSON.
 
 Open **`WMS-demo.html`** by double-clicking it (or drag it into Chrome/Edge).
 Nothing to install. You land already signed in as an **admin**, so every screen is
-reachable. "Sign out" shows the login screen; log back in with **any** credentials.
+reachable. "Sign out" shows the login screen.
+
+## Login & system-based access (demo)
+
+The login screen has **one-click demo accounts** (any password works). Access is
+scoped by **system** (UPW, Water, CDS, WCCS, SDS, Barcode, TMAH, CCTV):
+
+- **Admins** (David Miller / Sarah Thompson) see **every** system's transmittals,
+  materials and reports.
+- A **system user** only sees data for their own system — the dashboard, KPIs,
+  log report, materials list and catalogue are all filtered to it, and new
+  transmittals they create are locked to their system.
+
+Demo personas: David Miller (Admin · all), Jennifer Adams (Approver · UPW),
+Robert Johnson (Warehouse · Water), Emily Carter (Approver · CDS),
+James Wilson (Warehouse · WCCS). Sign in as an admin, note the row count, then
+sign in as a system user to see the list shrink to just their system.
 
 ## Full transmittal lifecycle — and it saves
 

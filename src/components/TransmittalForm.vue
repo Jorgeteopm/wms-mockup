@@ -85,6 +85,15 @@
             <label class="form-label">Company Requesting Material <span class="label-zh">申請廠商</span></label>
             <input v-model="form.company" :disabled="isSignMode" type="text" placeholder="e.g. MMI Construction" class="form-input" />
           </div>
+          <!-- System — drives who can see this transmittal -->
+          <div class="md:col-span-2 flex flex-col gap-1.5">
+            <label class="form-label">System <span class="label-zh">系統</span></label>
+            <select v-model="form.system" :disabled="isSignMode || lockedSystem" class="form-input">
+              <option disabled value="">Select system</option>
+              <option v-for="s in SYSTEMS" :key="s" :value="s">{{ s }}</option>
+            </select>
+            <p v-if="lockedSystem && !isSignMode" class="text-xs text-slate-400 -mt-0.5">Locked to your system.</p>
+          </div>
           <!-- BOQ -->
           <div class="md:col-span-2 flex flex-col gap-1.5">
             <label class="form-label">BOQ # <span class="label-zh">BOQ編號</span></label>
@@ -1528,8 +1537,14 @@ const form = reactive({
   datePickup: '',
   urgency: false,
   urgencyLevel: '',
-  urgencyReason: ''
+  urgencyReason: '',
+  system: ''
 })
+
+// Systems drive access control (see the mock). A user tied to a system has it
+// preset and locked; an admin picks it.
+const SYSTEMS = ['UPW', 'Water', 'CDS', 'WCCS', 'SDS', 'Barcode', 'TMAH', 'CCTV']
+const lockedSystem = computed(() => !!user.value?.system)
 
 // Must match the "Urgency Level options in Smartsheet
 const URGENCY_LEVELS = ['Low / 低度', 'Medium / 中度', 'High / 高度']
@@ -1624,6 +1639,7 @@ onMounted(async () => {
   if (isSignMode.value) {
     await loadTransmittal()
   } else {
+    if (user.value?.system) form.system = user.value.system
     await loadMaterials()
     await nextTick()
     captureBlankSnapshots()
@@ -2217,6 +2233,7 @@ function setFieldIfEmpty(obj, key, value) {
 function autoFillForm() {
   if (!isSignMode.value) {
     // --- Create form: request info (empty fields only) ---
+    setFieldIfEmpty(form, 'system', user.value?.system || 'UPW')
     setFieldIfEmpty(form, 'company', 'MMI Construction')
     setFieldIfEmpty(form, 'boq', 'BOQ-2026-0042')
     setFieldIfEmpty(form, 'dateApplication', today)
@@ -2278,7 +2295,8 @@ function resetForm() {
       company: '', boq: '', dateApplication: '', applicationResults: '',
       applicantName: '', requestorEmail: '', dateNeeded: '', datePicking: '',
       reason: '', pickupLocation: '', remark: '', comments: '', datePickup: '',
-      urgency: false, urgencyLevel: '', urgencyReason: ''
+      urgency: false, urgencyLevel: '', urgencyReason: '',
+      system: user.value?.system || ''
     })
 
     tableRows.value = Array.from({ length: 1 }, () => createEmptyRow())
@@ -2465,6 +2483,10 @@ async function submitForm() {
   }
   if (!isSignMode.value && form.urgency && !form.urgencyLevel) {
     showToast('Please select an Urgency Level. / 請選擇緊急程度。', 'warning')
+    return
+  }
+  if (stage === 'requester' && !form.system) {
+    showToast('Please select a System. / 請選擇系統。', 'warning')
     return
   }
   if (stage === 'warehouse' && !form.datePickup) {

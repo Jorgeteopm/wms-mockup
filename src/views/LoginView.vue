@@ -80,6 +80,37 @@
           </button>
 
         </form>
+
+        <!-- Demo accounts (mockup only) -->
+        <div class="mt-7 pt-5 border-t border-slate-100">
+          <p class="text-xs font-bold uppercase tracking-wide text-slate-400 mb-2">Demo accounts — click to sign in</p>
+          <p class="text-xs text-slate-400 mb-3">Any password works. Admins see every system; others only their own.</p>
+          <div class="space-y-1.5">
+            <button
+              v-for="acct in demoAccounts"
+              :key="acct.email"
+              type="button"
+              :disabled="loading"
+              @click="quickLogin(acct)"
+              class="w-full flex items-center justify-between gap-2 px-3 py-2 text-left border border-slate-200 rounded-lg hover:border-red-200 hover:bg-slate-50 transition-colors disabled:opacity-50"
+            >
+              <span>
+                <span class="block text-sm font-semibold text-slate-700">{{ acct.name }}</span>
+                <span class="block text-xs text-slate-400">{{ acct.email }}</span>
+              </span>
+              <span class="flex items-center gap-1.5 shrink-0">
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                  :class="acct.role === 'admin' ? 'bg-red-100 text-red-700' : (acct.role === 'approver' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700')">
+                  {{ acct.role }}
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
+                  :class="acct.system ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'">
+                  {{ acct.system || 'All' }}
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -97,6 +128,21 @@ const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
 const error   = ref('')
+
+// Mockup demo personas — mirror the seeded users in src/mock/api.js.
+const demoAccounts = [
+  { name: 'David Miller',   email: 'david.miller@teopm.com',   role: 'admin',     system: null },
+  { name: 'Jennifer Adams', email: 'jennifer.adams@mic.com',   role: 'approver',  system: 'UPW' },
+  { name: 'Robert Johnson', email: 'robert.johnson@mic.com',   role: 'warehouse', system: 'Water' },
+  { name: 'Emily Carter',   email: 'emily.carter@mic.com',     role: 'approver',  system: 'CDS' },
+  { name: 'James Wilson',   email: 'james.wilson@mic.com',     role: 'warehouse', system: 'WCCS' },
+]
+
+function quickLogin(acct) {
+  email.value = acct.email
+  password.value = 'demo'
+  submit()
+}
 
 async function submit() {
   error.value = ''

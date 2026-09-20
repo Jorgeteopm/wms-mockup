@@ -297,6 +297,7 @@
               <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('remark')">MIC Transmittal ID{{ sortIndicator('remark') }}</th>
               <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('comments')">Comments{{ sortIndicator('comments') }}</th>
               <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('company')">Company{{ sortIndicator('company') }}</th>
+              <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('system')">System{{ sortIndicator('system') }}</th>
               <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('applicantName')">Applicant{{ sortIndicator('applicantName') }}</th>
               <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('dateApplication')">Date{{ sortIndicator('dateApplication') }}</th>
               <th class="px-3 py-3 text-left cursor-pointer select-none hover:text-slate-700" @click="toggleSort('status')">Signature Status{{ sortIndicator('status') }}</th>
@@ -426,6 +427,10 @@
                 </td>
 
                 <td class="px-3 py-3 font-medium text-slate-800">{{ row.company || '—' }}</td>
+                <td class="px-3 py-3">
+                  <span v-if="row.system" class="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">{{ row.system }}</span>
+                  <span v-else class="text-slate-400">—</span>
+                </td>
                 <td class="px-3 py-3 text-slate-600">{{ row.applicantName || '—' }}</td>
                 <td class="px-3 py-3 text-slate-500 whitespace-nowrap">{{ row.dateApplication || '—' }}</td>
                 <td class="px-3 py-3">
@@ -654,7 +659,7 @@ const recipientStatusClass   = (status) => pillClass(RECIPIENT_STATUS_COLORS, st
 
 // This report should be only visible by these two roles
 const canViewReport  = computed(() => hasRole(user.value, 'admin', 'approver'))
-const tableColspan   = computed(() => (canViewReport.value ? 14 : 13))
+const tableColspan   = computed(() => (canViewReport.value ? 15 : 14))
 
 // ----- Inline remark editing -----
 // One row at a time: the draft belongs to whichever row is open, so there is nothing to
