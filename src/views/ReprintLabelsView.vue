@@ -2,10 +2,11 @@
   <div ref="scanPanelEl" class="max-w-3xl mx-auto space-y-4 sm:space-y-6" @focusout="onPanelFocusOut">
 
     <!-- Header -->
-    <div>
+    <div v-if="!embedded">
       <h1 class="text-lg sm:text-xl font-bold text-slate-800">Reprint Labels</h1>
       <p class="text-sm text-slate-500 mt-0.5">Scan a barcode or load a record below to reprint its label.</p>
     </div>
+    <p v-else class="text-sm text-slate-500">Scan a barcode or load a record below to reprint its label.</p>
 
     <!-- Scan & print panel -->
     <div
@@ -29,7 +30,7 @@
             class="flex items-center justify-center px-2 py-2.5 rounded-lg cursor-pointer text-center
                    text-xs sm:text-sm font-semibold transition-colors"
             :class="scanMode === mode.value
-              ? 'bg-white text-red-600 shadow-sm'
+              ? 'bg-white text-brand-600 shadow-sm'
               : 'text-slate-500 hover:text-slate-700'"
           >
             <input v-model="scanMode" type="radio" :value="mode.value" class="sr-only" />
@@ -81,7 +82,7 @@
             <button
               type="button"
               @click="retryCamera"
-              class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors shrink-0"
+              class="px-3 py-1.5 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors shrink-0"
             >
               Try again
             </button>
@@ -97,7 +98,7 @@
             placeholder="Focus here and scan…"
             class="w-full px-3 py-3 border border-gray-200 rounded-lg bg-white text-base sm:text-sm text-slate-800 text-center
                    placeholder:text-slate-300 transition-colors
-                   focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-50"
+                   focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-50"
             @input="onScannerTpnInput($event)"
             @keydown.enter.prevent="onTpnEnter"
           />
@@ -199,8 +200,8 @@
               <button
                 type="button"
                 @click="showLocationSheet = true"
-                class="px-3 py-2 text-sm font-semibold text-red-600 bg-red-50 border border-red-100 rounded-lg
-                       hover:bg-red-100 active:bg-red-100 transition-colors"
+                class="px-3 py-2 text-sm font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-lg
+                       hover:bg-brand-100 active:bg-brand-100 transition-colors"
               >
                 {{ barcodeForm.location.length ? 'Edit' : 'Add' }}
               </button>
@@ -210,14 +211,14 @@
               <span
                 v-for="loc in barcodeForm.location"
                 :key="loc"
-                class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-xs font-semibold text-red-700 bg-red-50 border border-red-100 rounded-md"
+                class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-xs font-semibold text-brand-700 bg-brand-50 border border-brand-100 rounded-md"
               >
                 {{ loc }}
                 <button
                   type="button"
                   @click="removeLocation(loc)"
                   :aria-label="`Remove ${loc}`"
-                  class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600"
+                  class="w-6 h-6 flex items-center justify-center text-brand-400 hover:text-brand-600"
                 >×</button>
               </span>
             </div>
@@ -236,7 +237,7 @@
                 @click="barcodeForm.condition = opt"
                 class="px-3 py-2.5 rounded-lg border text-sm font-semibold transition-colors"
                 :class="barcodeForm.condition === opt
-                  ? 'bg-red-50 border-red-200 text-red-700'
+                  ? 'bg-brand-50 border-brand-200 text-brand-700'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'"
               >
                 {{ opt }}
@@ -268,7 +269,7 @@
         <p v-if="matchedInbound" class="text-xs text-slate-500 text-center">
           Total: <strong>{{ labelQuantitiesSum }}</strong> of <strong>{{ maxLabelQty || 0 }}</strong> entered
         </p>
-        <p v-if="labelQtyExceedsMax" class="text-xs text-red-600 text-center font-semibold">
+        <p v-if="labelQtyExceedsMax" class="text-xs text-brand-600 text-center font-semibold">
           Label quantities exceed the entered quantity ({{ maxLabelQty }}).
         </p>
         <p v-else-if="matchedInbound && labelQtyIncomplete" class="text-xs text-amber-600 text-center font-semibold">
@@ -303,7 +304,7 @@
           v-for="inb in filteredInbounds"
           :key="inb.rowId ?? inb.tpn"
           @mousedown.prevent="selectInbound(inb)"
-          class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+          class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
         >
           <div class="font-medium text-slate-800 leading-tight">{{ inb.tpn }}</div>
           <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -327,7 +328,7 @@
           v-for="inb in filteredDesc2SearchRecords"
           :key="inb.rowId ?? inb.tpn"
           @mousedown.prevent="selectDesc2SearchRecord(inb)"
-          class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+          class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
         >
           <div class="font-medium text-slate-800 leading-tight">{{ inb.description2 }}</div>
           <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -405,6 +406,8 @@ import NumberStepper from '../components/NumberStepper.vue'
 import PickerSheet from '../components/PickerSheet.vue'
 import { QrcodeStream } from 'vue-qrcode-reader'
 import { printLabelPdf } from '../composables/useLabelPrint.js'
+
+defineProps({ embedded: { type: Boolean, default: false } })
 
 const API = '/api'
 

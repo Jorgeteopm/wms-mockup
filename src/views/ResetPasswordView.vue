@@ -3,14 +3,13 @@
     <div class="w-full max-w-sm bg-white rounded-2xl shadow-lg overflow-hidden">
 
       <!-- Branded top bar -->
-      <div class="bg-red-600 px-8 py-6 flex flex-col items-center gap-2">
-        <img src="/mic.png" alt="MIC" class="h-12 object-contain brightness-0 invert" />
-        <p class="text-red-200 text-sm font-medium tracking-wide">Transmittals</p>
+      <div class="bg-brand-900 px-8 py-7 flex flex-col items-center">
+        <img src="/wms-logo-white.png" alt="WMS" class="h-20 object-contain" />
       </div>
 
       <!-- Loading -->
       <div v-if="state === 'loading'" class="px-8 py-12 flex flex-col items-center gap-3 text-slate-400">
-        <svg class="animate-spin h-6 w-6 text-red-400" viewBox="0 0 24 24" fill="none">
+        <svg class="animate-spin h-6 w-6 text-brand-400" viewBox="0 0 24 24" fill="none">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
         </svg>
@@ -20,8 +19,8 @@
       <!-- Invalid / expired -->
       <div v-else-if="state === 'invalid'" class="px-8 py-8">
         <div class="flex flex-col items-center text-center gap-4">
-          <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-            <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center">
+            <svg class="w-6 h-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
             </svg>
           </div>
@@ -31,7 +30,7 @@
           </div>
           <router-link
             to="/forgot-password"
-            class="w-full py-3 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors text-center block"
+            class="w-full py-3 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-colors text-center block"
           >
             Request a new link
           </router-link>
@@ -64,7 +63,7 @@
                 type="button"
                 @click="showPassword = !showPassword"
                 tabindex="-1"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-red-600 transition-colors select-none"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 hover:text-brand-600 transition-colors select-none"
               >
                 {{ showPassword ? 'Hide' : 'Show' }}
               </button>
@@ -85,7 +84,7 @@
               :disabled="submitting"
               class="form-input"
             />
-            <p v-if="confirm && confirm !== password" class="text-xs text-red-600">
+            <p v-if="confirm && confirm !== password" class="text-xs text-brand-600">
               Passwords do not match.
             </p>
           </div>
@@ -93,7 +92,7 @@
           <!-- Error banner -->
           <div
             v-if="formError"
-            class="text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3"
+            class="text-sm text-brand-700 bg-brand-50 border border-brand-100 rounded-lg px-4 py-3"
           >
             {{ formError }}
           </div>
@@ -101,7 +100,7 @@
           <button
             type="submit"
             :disabled="submitting || password.length < 8 || password !== confirm"
-            class="w-full py-3 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 active:scale-[.98] transition-all"
+            class="w-full py-3 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 active:scale-[.98] transition-all"
           >
             <span v-if="submitting" class="flex items-center justify-center gap-2">
               <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
@@ -130,7 +129,7 @@
           </div>
           <a
             href="/login"
-            class="w-full py-3 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors text-center block"
+            class="w-full py-3 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-colors text-center block"
           >
             Go to Sign In
           </a>

@@ -94,7 +94,7 @@ function onBlur() {
 
 .stepper-input {
   @apply w-16 text-center text-base font-semibold text-slate-800 bg-transparent
-         border-x border-slate-200 focus:outline-none focus:bg-red-50/40;
+         border-x border-slate-200 focus:outline-none focus:bg-brand-50/40;
 }
 
 /* The native spinner arrows are the thing this component exists to replace. */

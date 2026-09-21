@@ -2,14 +2,14 @@
   <div class="max-w-7xl mx-auto bg-white sm:rounded-2xl shadow-lg overflow-hidden">
 
     <!-- Branded header -->
-    <div class="bg-red-600 px-4 sm:px-8 py-4 sm:py-5 flex items-center gap-3 sm:gap-5 flex-wrap">
-      <img src="/mic.png" alt="MIC" class="h-10 sm:h-14 object-contain brightness-0 invert shrink-0" />
+    <div class="bg-brand-600 px-4 sm:px-8 py-4 sm:py-5 flex items-center gap-3 sm:gap-5 flex-wrap">
+      <img src="/wms-icon-white.png" alt="WMS" class="h-12 sm:h-16 object-contain shrink-0" />
       <div class="flex-1 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 class="text-white font-bold text-base sm:text-xl leading-tight">
             P2 – New Material Picking &amp; Requisition Form
           </h1>
-          <p class="text-red-200 text-sm mt-0.5">新領料申請單</p>
+          <p class="text-brand-200 text-sm mt-0.5">新領料申請單</p>
         </div>
         <button
           v-if="!isDeclined && (!isSignMode || currentStage)"
@@ -37,7 +37,7 @@
         v-if="isSignMode"
         class="rounded-xl border px-4 py-3 text-sm font-semibold flex items-center justify-between gap-3 flex-wrap"
         :class="isDeclined
-          ? 'bg-red-50 border-red-200 text-red-700'
+          ? 'bg-brand-50 border-brand-200 text-brand-700'
           : isPartialDeliveryMode
             ? 'bg-amber-50 border-amber-200 text-amber-800'
             : currentStage
@@ -72,7 +72,7 @@
       <!-- ── Section 1: Request Information ── -->
       <div>
         <div class="flex items-center gap-3 mb-5">
-          <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+          <div class="w-1 h-6 bg-brand-600 rounded-full"></div>
           <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">
             Request Information <span class="text-slate-400 font-normal normal-case tracking-normal">/ 申請資訊</span>
           </h2>
@@ -120,7 +120,7 @@
               :max="form.urgency && form.dateApplication ? urgentMaxDateNeeded : undefined"
               class="form-input"
             />
-            <p v-if="form.urgency && form.dateApplication" class="text-xs text-red-500">
+            <p v-if="form.urgency && form.dateApplication" class="text-xs text-brand-500">
               Urgent: same day or next day only / 緊急：僅限當天或次日
             </p>
           </div>
@@ -146,7 +146,7 @@
                 :disabled="isSignMode"
                 type="checkbox"
                 id="urgencyCheckbox"
-                class="w-4 h-4 accent-red-600 cursor-pointer disabled:cursor-not-allowed"
+                class="w-4 h-4 accent-brand-600 cursor-pointer disabled:cursor-not-allowed"
               />
               <label for="urgencyCheckbox" class="text-sm text-slate-700 cursor-pointer select-none">Urgent / 緊急</label>
             </div>
@@ -167,7 +167,7 @@
                   :disabled="isSignMode"
                   type="radio"
                   name="urgencyLevel"
-                  class="w-4 h-4 accent-red-600 cursor-pointer disabled:cursor-not-allowed"
+                  class="w-4 h-4 accent-brand-600 cursor-pointer disabled:cursor-not-allowed"
                 />
                 {{ level }}
               </label>
@@ -300,7 +300,7 @@
            recipient. The delivery itself is signed for further down. -->
       <div v-if="isPartialDeliveryMode">
         <div class="flex items-center gap-3 mb-5">
-          <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+          <div class="w-1 h-6 bg-brand-600 rounded-full"></div>
           <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">
             Partial Delivery Acknowledgement <span class="text-slate-400 font-normal normal-case tracking-normal">/ 部分交貨確認</span>
           </h2>
@@ -312,7 +312,7 @@
             <div class="flex flex-col gap-1.5">
               <label class="form-label text-slate-800">
                 Date of Pickup {{ pdVersion }} <span class="label-zh text-slate-400">取貨日期 {{ pdVersion }}</span>
-                <span class="text-red-500 ml-0.5">*</span>
+                <span class="text-brand-500 ml-0.5">*</span>
               </label>
               <input
                 v-model="pdDatePickup"
@@ -324,7 +324,7 @@
             <div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
               <label class="form-label text-slate-800">
                 Pickup Location {{ pdVersion }} <span class="label-zh text-slate-400">取貨地點 {{ pdVersion }}</span>
-                <span class="text-red-500 ml-0.5">*</span>
+                <span class="text-brand-500 ml-0.5">*</span>
               </label>
               <input
                 v-model="pdPickupLocation"
@@ -337,7 +337,7 @@
             <div class="flex flex-col gap-1.5">
               <label class="form-label text-slate-800">
                 Pickup Timeframe {{ pdVersion }} <span class="label-zh text-slate-400">取貨時段 {{ pdVersion }}</span>
-                <span class="text-red-500 ml-0.5">*</span>
+                <span class="text-brand-500 ml-0.5">*</span>
               </label>
               <div class="flex items-center gap-2">
                 <input v-model="pdPickupTimeStart" :disabled="pdAcknowledged" type="time" class="form-input" />
@@ -358,7 +358,7 @@
               type="button"
               @click="sendPdAcknowledgement"
               :disabled="acknowledging"
-              class="px-6 py-2.5 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              class="px-6 py-2.5 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 active:scale-95 transition-all shadow disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <svg v-if="acknowledging" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -379,7 +379,7 @@
       <!-- ── Section 2: Materials List ── -->
       <div>
         <div class="flex items-center gap-3 mb-5">
-          <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+          <div class="w-1 h-6 bg-brand-600 rounded-full"></div>
           <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">
             Materials List <span class="text-slate-400 font-normal normal-case tracking-normal">/ 材料清單</span>
           </h2>
@@ -388,16 +388,16 @@
         <div class="overflow-x-auto rounded-xl">
           <table class="materials-table w-full min-w-[900px] text-sm">
             <thead>
-              <tr class="bg-red-600 text-white">
+              <tr class="bg-brand-600 text-white">
                 <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">#</th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Part Number<br /><span class="font-normal text-red-200 text-xs">零件編號</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Type<br /><span class="font-normal text-red-200 text-xs">類型</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Description<br /><span class="font-normal text-red-200 text-xs">描述</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Product<br /><span class="font-normal text-red-200 text-xs">產品</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Unit<br /><span class="font-normal text-red-200 text-xs">單位</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Qty<br /><span class="font-normal text-red-200 text-xs">數量</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Transfer Qty<br /><span class="font-normal text-red-200 text-xs">調撥數量</span></th>
-                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Remarks<br /><span class="font-normal text-red-200 text-xs">備註</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Part Number<br /><span class="font-normal text-brand-200 text-xs">零件編號</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Type<br /><span class="font-normal text-brand-200 text-xs">類型</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Description<br /><span class="font-normal text-brand-200 text-xs">描述</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Product<br /><span class="font-normal text-brand-200 text-xs">產品</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Unit<br /><span class="font-normal text-brand-200 text-xs">單位</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Qty<br /><span class="font-normal text-brand-200 text-xs">數量</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Transfer Qty<br /><span class="font-normal text-brand-200 text-xs">調撥數量</span></th>
+                <th class="px-3 py-3 text-left font-semibold whitespace-nowrap">Remarks<br /><span class="font-normal text-brand-200 text-xs">備註</span></th>
                 <th v-if="!isSignMode" class="px-3 py-3"></th>
               </tr>
             </thead>
@@ -412,7 +412,7 @@
                       ? 'bg-slate-100'
                       : isRowEditableInPartialDelivery(row)
                         ? 'bg-amber-50'
-                        : index % 2 === 1 ? 'bg-red-50' : 'bg-white',
+                        : index % 2 === 1 ? 'bg-brand-50' : 'bg-white',
                   hasHistory(row) ? 'cursor-pointer' : ''
                 ]"
               >
@@ -454,7 +454,7 @@
                     : hasHistory(row)
                       ? 'border-gray-200 bg-slate-50'
                       : rowErrors[row.childRowId]
-                        ? 'border-red-400 bg-red-50'
+                        ? 'border-brand-400 bg-brand-50'
                         : isRowEditableInPartialDelivery(row)
                           ? 'border-slate-300 bg-slate-100'
                           : (currentStage === 'recipient' && inboundAutoFilled[row.childRowId])
@@ -547,7 +547,7 @@
                   <button
                     type="button"
                     @click="deleteRow(row.id)"
-                    class="px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors"
+                    class="px-2.5 py-1 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors"
                   >
                     Remove
                   </button>
@@ -618,7 +618,7 @@
                   </div>
                   <!-- Ceiling for this batch: ordered qty minus everything delivered so far. -->
                   <p class="mt-1 pt-1 border-t border-dashed border-slate-300 text-[10px] leading-none"
-                     :class="remainingQty(row) > 0 ? 'text-slate-400' : 'text-red-600 font-semibold'">
+                     :class="remainingQty(row) > 0 ? 'text-slate-400' : 'text-brand-600 font-semibold'">
                     Max Qty: {{ remainingQty(row) }}
                   </p>
                   <p v-if="rowErrors[row.childRowId]" class="text-[10px] text-red-600 font-semibold mt-0.5 leading-tight">
@@ -651,7 +651,7 @@
           <button
             type="button"
             @click="addRow"
-            class="px-5 py-2 text-sm font-semibold text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+            class="px-5 py-2 text-sm font-semibold text-brand-700 bg-brand-50 border border-brand-200 rounded-lg hover:bg-brand-100 transition-colors"
           >
             + Add Row / 新增列
           </button>
@@ -689,7 +689,7 @@
             type="button"
             @click="showNoShowModal = true"
             :disabled="submittingNoShow"
-            class="px-6 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow disabled:opacity-60 disabled:cursor-not-allowed"
+            class="px-6 py-2 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 active:scale-95 transition-all shadow disabled:opacity-60 disabled:cursor-not-allowed"
           >
             Recipient No-Show / 收件人未到場
           </button>
@@ -707,7 +707,7 @@
             v-for="mat in filterMaterials(activeRow._search)"
             :key="mat.partNumber + mat.description"
             @mousedown.prevent="selectMaterial(activeRow, mat)"
-            class="px-3 py-2 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+            class="px-3 py-2 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
           >
             <!-- Searching by part number leads with it, so the eye lands on what was typed -->
             <template v-if="activeField === 'partNumber'">
@@ -733,7 +733,7 @@
           </li>
           <li v-else-if="materialsError" class="px-3 py-2 text-sm text-red-600">
             The materials list did not load.
-            <button type="button" @mousedown.prevent="loadMaterials()" class="ml-1 font-semibold underline hover:text-red-700">Retry</button>
+            <button type="button" @mousedown.prevent="loadMaterials()" class="ml-1 font-semibold underline hover:text-brand-700">Retry</button>
           </li>
           <li v-else-if="filterMaterials(activeRow._search).length === 0" class="px-3 py-2 text-sm text-slate-400">
             No matches found
@@ -757,7 +757,7 @@
               <button
                 type="button"
                 @click="capturePhoto"
-                class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                class="px-4 py-2 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
               >
                 Capture / 拍攝
               </button>
@@ -769,7 +769,7 @@
       <!-- ── Section 3: Signatures ── -->
       <div v-if="!isPartialDeliveryMode">
         <div class="flex items-center gap-3 mb-2">
-          <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+          <div class="w-1 h-6 bg-brand-600 rounded-full"></div>
           <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">
             Signatures <span class="text-slate-400 font-normal normal-case tracking-normal">/ 簽名</span>
           </h2>
@@ -782,7 +782,7 @@
                 class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors"
                 :class="{
                   'bg-green-500 border-green-500 text-white': progressSigState(step.key) === 'signed',
-                  'bg-red-600   border-red-600   text-white': progressSigState(step.key) === 'active',
+                  'bg-brand-600   border-brand-600   text-white': progressSigState(step.key) === 'active',
                   'bg-white     border-gray-200  text-gray-300': progressSigState(step.key) === 'pending'
                 }"
               >
@@ -793,7 +793,7 @@
                 class="text-xs font-semibold text-center leading-tight"
                 :class="{
                   'text-green-600': progressSigState(step.key) === 'signed',
-                  'text-red-600':   progressSigState(step.key) === 'active',
+                  'text-brand-600':   progressSigState(step.key) === 'active',
                   'text-gray-400':  progressSigState(step.key) === 'pending'
                 }"
               >{{ step.label.split(' / ')[0] }}</span>
@@ -814,7 +814,7 @@
         <div v-if="canSeeSignatureCard" :key="formKey" class="flex justify-center">
         <div class="w-full max-w-4xl rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
           <div class="flex items-center justify-center gap-2 mb-5">
-            <div class="w-1 h-5 bg-red-600 rounded-full"></div>
+            <div class="w-1 h-5 bg-brand-600 rounded-full"></div>
             <span class="text-sm font-bold text-slate-700">{{ activeStepTitle }}</span>
           </div>
 
@@ -825,7 +825,7 @@
             <div class="flex justify-center">
               <div class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 w-full max-w-sm">
                 <div class="flex items-center gap-2 pb-2 border-b border-slate-200">
-                  <div class="w-1 h-5 bg-red-600 rounded-full"></div>
+                  <div class="w-1 h-5 bg-brand-600 rounded-full"></div>
                   <span class="text-sm font-bold text-slate-700">Warehouse Signatory / 倉庫簽名人</span>
                 </div>
 
@@ -833,14 +833,14 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="text-xs font-semibold text-slate-700">
                     Acknowledged By <span class="font-normal text-slate-400">確認人</span>
-                    <span class="text-red-500 ml-0.5">*</span>
+                    <span class="text-brand-500 ml-0.5">*</span>
                   </label>
                   <input
                     v-model="acknowledgeName"
                     type="text"
                     placeholder="Full name of acknowledging person / 確認人全名"
                     :disabled="warehouseAlreadySigned"
-                    class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200 max-w-xs disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
+                    class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-200 max-w-xs disabled:bg-slate-100 disabled:text-slate-500 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -856,7 +856,7 @@
                   width="220" height="90"
                   :class="warehouseAlreadySigned
                     ? 'border-2 border-slate-200 rounded-xl bg-white w-full max-w-xs cursor-not-allowed opacity-70'
-                    : 'border-2 border-red-200 border-dashed rounded-xl bg-white w-full max-w-xs touch-none cursor-crosshair'"
+                    : 'border-2 border-brand-200 border-dashed rounded-xl bg-white w-full max-w-xs touch-none cursor-crosshair'"
                   @mousedown="!warehouseAlreadySigned && startDraw('warehouse', $event)"
                   @mouseup="!warehouseAlreadySigned && stopDraw('warehouse')"
                   @mouseleave="!warehouseAlreadySigned && stopDraw('warehouse')"
@@ -865,7 +865,7 @@
                   @touchmove.prevent="!warehouseAlreadySigned && draw('warehouse', $event)"
                   @touchend.prevent="!warehouseAlreadySigned && stopDraw('warehouse')"
                 ></canvas>
-                <button v-if="!warehouseAlreadySigned" type="button" @click="clearSignature('warehouse')" class="text-xs text-slate-400 hover:text-red-500 underline transition-colors self-start">
+                <button v-if="!warehouseAlreadySigned" type="button" @click="clearSignature('warehouse')" class="text-xs text-slate-400 hover:text-brand-500 underline transition-colors self-start">
                   Clear / 清除
                 </button>
               </div>
@@ -881,7 +881,7 @@
               <button
                 type="button"
                 @click="recipientSigningStarted = true"
-                class="px-10 py-3 text-base font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow"
+                class="px-10 py-3 text-base font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 active:scale-95 transition-all shadow"
               >
                 Start Signing Process / 開始簽署流程
               </button>
@@ -896,7 +896,7 @@
             <div class="flex justify-center">
               <div class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50/60 p-4 w-full max-w-sm">
                 <div class="flex items-center gap-2 pb-2 border-b border-slate-200">
-                  <div class="w-1 h-5 bg-red-600 rounded-full"></div>
+                  <div class="w-1 h-5 bg-brand-600 rounded-full"></div>
                   <span class="text-sm font-bold text-slate-700">Recipient / 收件人</span>
                 </div>
 
@@ -904,18 +904,18 @@
                   v-model="signatureNames.recipient"
                   type="text"
                   placeholder="Recipient Name / 收件人姓名"
-                  class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200 max-w-xs"
+                  class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-200 max-w-xs"
                 />
                 <input
                   v-model="recipientCompanyName"
                   type="text"
                   placeholder="Company Name / 公司名稱"
-                  class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200 max-w-xs"
+                  class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-200 max-w-xs"
                 />
                 <div class="flex flex-col gap-1">
                   <label class="text-xs font-semibold text-slate-600">Attach Recipient ID / 附上收件人證件照片</label>
                   <div class="flex gap-2 flex-wrap">
-                    <button type="button" @click="openCamera('recipient')" class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors">
+                    <button type="button" @click="openCamera('recipient')" class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors">
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                         <circle cx="12" cy="13" r="4"/>
@@ -934,7 +934,7 @@
                   </div>
                   <div v-if="recipientIdImage" class="flex items-center gap-2 mt-1">
                     <img :src="recipientIdImage" class="max-h-24 rounded-lg border border-gray-200 object-contain" />
-                    <button type="button" @click="clearRecipientId" class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors self-start">
+                    <button type="button" @click="clearRecipientId" class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors self-start">
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="3 6 5 6 21 6"/>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -947,13 +947,13 @@
                 <canvas
                   :ref="el => setCanvasRef(el, 'recipient')"
                   width="220" height="90"
-                  class="border-2 border-red-200 border-dashed rounded-xl bg-white w-full max-w-xs touch-none cursor-crosshair"
+                  class="border-2 border-brand-200 border-dashed rounded-xl bg-white w-full max-w-xs touch-none cursor-crosshair"
                   @mousedown="startDraw('recipient', $event)" @mouseup="stopDraw('recipient')"
                   @mouseleave="stopDraw('recipient')" @mousemove="draw('recipient', $event)"
                   @touchstart.prevent="startDraw('recipient', $event)" @touchmove.prevent="draw('recipient', $event)"
                   @touchend.prevent="stopDraw('recipient')"
                 ></canvas>
-                <button type="button" @click="clearSignature('recipient')" class="text-xs text-slate-400 hover:text-red-500 underline transition-colors self-start">
+                <button type="button" @click="clearSignature('recipient')" class="text-xs text-slate-400 hover:text-brand-500 underline transition-colors self-start">
                   Clear / 清除
                 </button>
               </div>
@@ -999,12 +999,12 @@
                         type="text"
                         placeholder="Name / 姓名"
                         :readonly="userMatchesStage && sig.key === currentStage"
-                        class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200"
+                        class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-200"
                         :class="userMatchesStage && sig.key === currentStage ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''"
                       />
                     </div>
                     <div v-if="approverDecision === 'declined'" class="flex flex-col gap-1">
-                      <label class="text-xs font-semibold text-red-700">
+                      <label class="text-xs font-semibold text-brand-700">
                         Reason for Decline <span class="font-normal text-red-500">*</span>
                         <span class="font-normal text-slate-400 ml-1">拒絕原因</span>
                       </label>
@@ -1019,7 +1019,7 @@
                   type="text"
                   placeholder="Name / 姓名"
                   :readonly="userMatchesStage && sig.key === currentStage"
-                  class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-200"
+                  class="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-200"
                   :class="userMatchesStage && sig.key === currentStage ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''"
                 />
                 <p v-if="userMatchesStage && user && sig.key === currentStage && (sig.key !== 'approver' || approverDecision === 'approved')" class="text-xs text-slate-400 -mt-1">
@@ -1032,13 +1032,13 @@
                   <canvas
                     :ref="el => setCanvasRef(el, sig.key)"
                     width="220" height="90"
-                    class="border-2 border-red-200 border-dashed rounded-xl bg-white w-full touch-none cursor-crosshair"
+                    class="border-2 border-brand-200 border-dashed rounded-xl bg-white w-full touch-none cursor-crosshair"
                     @mousedown="startDraw(sig.key, $event)" @mouseup="stopDraw(sig.key)"
                     @mouseleave="stopDraw(sig.key)" @mousemove="draw(sig.key, $event)"
                     @touchstart.prevent="startDraw(sig.key, $event)" @touchmove.prevent="draw(sig.key, $event)"
                     @touchend.prevent="stopDraw(sig.key)"
                   ></canvas>
-                  <button type="button" @click="clearSignature(sig.key)" class="text-xs text-slate-400 hover:text-red-500 underline transition-colors self-start">Clear / 清除</button>
+                  <button type="button" @click="clearSignature(sig.key)" class="text-xs text-slate-400 hover:text-brand-500 underline transition-colors self-start">Clear / 清除</button>
                 </template>
               </div>
             </template>
@@ -1051,7 +1051,7 @@
       <!-- Section 3.1: Partial Delivery Signatures -->
       <div v-if="isPartialDeliveryMode && pdAcknowledged">
         <div class="flex items-center gap-3 mb-2">
-          <div class="w-1 h-6 bg-red-600 rounded-full"></div>
+          <div class="w-1 h-6 bg-brand-600 rounded-full"></div>
           <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">
             Partial Delivery Sign-off <span class="text-slate-400 font-normal normal-case tracking-normal">/
               部分交貨簽核</span>
@@ -1073,7 +1073,7 @@
             <div class="flex flex-col gap-1.5">
               <label class="form-label text-slate-800">
                 PD Date {{ pdVersion }} <span class="label-zh text-slate-400">部分交貨日期 {{ pdVersion }}</span>
-                <span class="text-red-500 ml-0.5">*</span>
+                <span class="text-brand-500 ml-0.5">*</span>
               </label>
               <input v-model="updateDate" type="date" class="form-input" />
             </div>
@@ -1087,21 +1087,21 @@
             <div class="flex flex-col gap-3 flex-1 min-w-[240px]">
               <div class="flex flex-col gap-1.5">
                 <label class="form-label text-slate-800">Recipient Name <span
-                    class="font-normal text-slate-400">收件人姓名</span> <span class="text-red-500">*</span></label>
+                    class="font-normal text-slate-400">收件人姓名</span> <span class="text-brand-500">*</span></label>
                 <input v-model="pdRecipientName" type="text" placeholder="Full name / 全名" class="form-input" />
               </div>
               <div class="flex flex-col gap-1.5">
                 <label class="form-label text-slate-800">Company Name <span
-                    class="font-normal text-slate-400">公司名稱</span> <span class="text-red-500">*</span></label>
+                    class="font-normal text-slate-400">公司名稱</span> <span class="text-brand-500">*</span></label>
                 <input v-model="pdRecipientCompany" type="text" placeholder="Company / 公司" class="form-input" />
               </div>
               <!-- ID Image -->
               <div class="flex flex-col gap-1">
                 <label class="form-label text-slate-800">Recipient ID / 收件人證件照片 <span
-                    class="text-red-500">*</span></label>
+                    class="text-brand-500">*</span></label>
                 <div class="flex gap-2 flex-wrap">
                   <button type="button" @click="openCamera('pd')"
-                    class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors">
+                    class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                       <circle cx="12" cy="13" r="4" />
@@ -1124,7 +1124,7 @@
                 <div v-if="pdRecipientIdImage" class="flex items-center gap-2 mt-1">
                   <img :src="pdRecipientIdImage" class="max-h-20 rounded-lg border border-slate-200 object-contain" />
                   <button type="button" @click="clearPdRecipientId"
-                    class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors self-start">
+                    class="flex items-center gap-1.5 px-2 py-1 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors self-start">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="3 6 5 6 21 6" />
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -1138,14 +1138,14 @@
             <!-- Signature canvas -->
             <div class="flex flex-col gap-2 flex-1 min-w-[240px]">
               <label class="form-label text-slate-800">Recipient Signature / 收件人簽名 <span
-                  class="text-red-500">*</span></label>
+                  class="text-brand-500">*</span></label>
               <canvas :ref="el => setCanvasRef(el, 'pdRecipient')" width="220" height="90"
                 class="border-2 border-slate-300 border-dashed rounded-xl bg-white w-full touch-none cursor-crosshair"
                 @mousedown="startDrawPd($event)" @mouseup="stopDrawPd()" @mouseleave="stopDrawPd()"
                 @mousemove="drawPd($event)" @touchstart.prevent="startDrawPd($event)"
                 @touchmove.prevent="drawPd($event)" @touchend.prevent="stopDrawPd()"></canvas>
               <button type="button" @click="clearSignature('pdRecipient')"
-                class="text-xs text-slate-400 hover:text-red-500 underline transition-colors self-start">
+                class="text-xs text-slate-400 hover:text-brand-500 underline transition-colors self-start">
                 Clear / 清除
               </button>
             </div>
@@ -1206,7 +1206,7 @@
               type="button"
               @click="submitForm"
               :disabled="submitting || (currentStage === 'recipient' && hasManualItems && !inboundProgressSaved)"
-              class="px-10 py-3 text-base font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow
+              class="px-10 py-3 text-base font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 active:scale-95 transition-all shadow
                      disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <svg
@@ -1233,7 +1233,7 @@
             type="button"
             @click="submitTransferUpdate"
             :disabled="submitting || !pdOutboundSaved"
-            class="px-10 py-3 text-base font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 active:scale-95 transition-all shadow
+            class="px-10 py-3 text-base font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 active:scale-95 transition-all shadow
                    disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 flex items-center justify-center gap-2 w-full sm:w-auto"
           >
             <svg v-if="submitting" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

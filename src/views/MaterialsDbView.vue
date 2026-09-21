@@ -25,12 +25,15 @@
 
     <!-- Header -->
     <div class="flex items-end justify-between gap-4 flex-wrap">
-      <div>
+      <div v-if="!embedded">
         <h1 class="text-xl font-bold text-slate-800">Materials List</h1>
         <p class="text-sm text-slate-500 mt-0.5">
           Browse the Pinnacle Peak materials database, set each item's picture and manage its files.
         </p>
       </div>
+      <p v-else class="text-sm text-slate-500">
+        Browse the Pinnacle Peak materials database, set each item's picture and manage its files.
+      </p>
 
       <button
         type="button"
@@ -82,8 +85,24 @@
           </select>
         </div>
 
+        <div class="min-w-[160px]">
+          <label class="form-label">System</label>
+          <select v-model="systemFilter" class="form-input">
+            <option value="">All systems</option>
+            <option v-for="option in systemOptions" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </div>
+
+        <div class="min-w-[160px]">
+          <label class="form-label">Warehouse</label>
+          <select v-model="warehouseFilter" class="form-input">
+            <option value="">All warehouses</option>
+            <option v-for="option in warehouseOptions" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </div>
+
         <label class="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg hover:bg-slate-50">
-          <input v-model="onlyMissingPicture" type="checkbox" class="accent-red-600 w-4 h-4" />
+          <input v-model="onlyMissingPicture" type="checkbox" class="accent-brand-600 w-4 h-4" />
           <span class="text-sm text-slate-700 whitespace-nowrap">Missing picture</span>
         </label>
       </div>
@@ -151,7 +170,7 @@
                     loading="lazy"
                     decoding="async"
                     @click.stop="openImage(record, col)"
-                    class="w-14 h-14 object-cover rounded-lg border border-slate-200 bg-white cursor-zoom-in hover:border-red-300 transition-colors"
+                    class="w-14 h-14 object-cover rounded-lg border border-slate-200 bg-white cursor-zoom-in hover:border-brand-300 transition-colors"
                   />
                   <div
                     v-else
@@ -231,7 +250,7 @@
             <tr v-if="loading">
               <td :colspan="columns.length + 2" class="px-5 py-10">
                 <div class="flex items-center justify-center gap-2.5 text-sm text-slate-400">
-                  <svg class="animate-spin h-5 w-5 text-red-600" viewBox="0 0 24 24" fill="none">
+                  <svg class="animate-spin h-5 w-5 text-brand-600" viewBox="0 0 24 24" fill="none">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
@@ -292,7 +311,7 @@
                   :src="imageUrls[detail.picture.id]"
                   :alt="detail.tpn"
                   @click="openImage(detail, { field: 'picture', label: 'Picture' })"
-                  class="w-32 h-32 object-cover rounded-xl border border-slate-200 bg-white cursor-zoom-in hover:border-red-300 transition-colors"
+                  class="w-32 h-32 object-cover rounded-xl border border-slate-200 bg-white cursor-zoom-in hover:border-brand-300 transition-colors"
                 />
                 <div
                   v-else
@@ -309,7 +328,7 @@
                   <p class="text-xs text-slate-500">
                     This is the image the material is shown with. Uploading replaces the current one.
                   </p>
-                  <label class="inline-block px-3 py-2 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer transition-colors">
+                  <label class="inline-block px-3 py-2 text-sm font-semibold text-brand-600 bg-brand-50 border border-brand-200 rounded-lg hover:bg-brand-100 cursor-pointer transition-colors">
                     {{ detail.picture ? 'Replace picture' : 'Upload picture' }}
                     <input type="file" accept="image/*" class="hidden" @change="onPictureSelected" />
                   </label>
@@ -372,13 +391,13 @@
                     <span
                       v-for="loc in editLocations"
                       :key="loc"
-                      class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-md"
+                      class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-sm font-semibold text-brand-700 bg-brand-50 border border-brand-100 rounded-md"
                     >
                       {{ loc }}
                       <button
                         type="button"
                         @click.stop="removeLocation(loc)"
-                        class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-100 rounded leading-none text-base"
+                        class="w-6 h-6 flex items-center justify-center text-brand-400 hover:text-brand-600 hover:bg-brand-100 rounded leading-none text-base"
                       >×</button>
                     </span>
                     <!-- Function ref: a string ref inside this v-for would come back as an array -->
@@ -427,7 +446,7 @@
                   <button
                     type="submit"
                     :disabled="!detailsDirty || busy"
-                    class="px-5 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    class="px-5 py-2 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 transition-colors"
                   >
                     Save changes
                   </button>
@@ -439,14 +458,14 @@
             <section class="space-y-3">
               <div class="flex items-center justify-between gap-3">
                 <h3 class="text-sm font-semibold text-slate-700">Attachments</h3>
-                <label class="px-3 py-1.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 cursor-pointer transition-colors">
+                <label class="px-3 py-1.5 text-sm font-semibold text-brand-600 bg-brand-50 border border-brand-200 rounded-lg hover:bg-brand-100 cursor-pointer transition-colors">
                   Add files
                   <input type="file" multiple class="hidden" @change="onFilesSelected" />
                 </label>
               </div>
 
               <div v-if="attachmentsLoading" class="flex items-center gap-2 text-sm text-slate-400">
-                <svg class="animate-spin h-4 w-4 text-red-600" viewBox="0 0 24 24" fill="none">
+                <svg class="animate-spin h-4 w-4 text-brand-600" viewBox="0 0 24 24" fill="none">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                 </svg>
@@ -506,7 +525,7 @@
                   <button
                     type="button"
                     @click="removeAttachment(attachment)"
-                    class="shrink-0 px-2.5 py-1 text-xs font-semibold text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                    class="shrink-0 px-2.5 py-1 text-xs font-semibold text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50 transition-colors"
                   >
                     Delete
                   </button>
@@ -535,14 +554,14 @@
           v-for="option in suggestions"
           :key="option"
           @mousedown.prevent="pickSuggestion(option)"
-          class="text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+          class="text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
           :class="suggest.field === 'location' ? 'flex items-center gap-2 px-3 py-3.5' : 'px-3 py-2'"
         >
           <input
             v-if="suggest.field === 'location'"
             type="checkbox"
             :checked="editLocations.includes(option)"
-            class="accent-red-600 w-5 h-5 pointer-events-none"
+            class="accent-brand-600 w-5 h-5 pointer-events-none"
           />
           {{ option }}
         </li>
@@ -558,9 +577,9 @@
       >
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
-          <div class="bg-red-600 px-6 py-4 flex items-center justify-between">
+          <div class="bg-brand-600 px-6 py-4 flex items-center justify-between">
             <h2 class="text-white font-bold text-base">Inventory Adjustment</h2>
-            <button type="button" @click="closeAdjustment" class="text-red-200 hover:text-white transition-colors text-xl leading-none">×</button>
+            <button type="button" @click="closeAdjustment" class="text-brand-200 hover:text-white transition-colors text-xl leading-none">×</button>
           </div>
 
           <form @submit.prevent="submitAdjustment" class="p-6 space-y-4">
@@ -576,16 +595,16 @@
               <div class="flex gap-2">
                 <label
                   class="flex-1 flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg border transition-colors"
-                  :class="adjustment.direction === 'positive' ? 'border-red-400 bg-red-50' : 'border-slate-200 hover:bg-slate-50'"
+                  :class="adjustment.direction === 'positive' ? 'border-brand-400 bg-brand-50' : 'border-slate-200 hover:bg-slate-50'"
                 >
-                  <input v-model="adjustment.direction" type="radio" value="positive" class="accent-red-600 w-4 h-4" />
+                  <input v-model="adjustment.direction" type="radio" value="positive" class="accent-brand-600 w-4 h-4" />
                   <span class="text-sm text-slate-700">Positive (add stock)</span>
                 </label>
                 <label
                   class="flex-1 flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg border transition-colors"
-                  :class="adjustment.direction === 'negative' ? 'border-red-400 bg-red-50' : 'border-slate-200 hover:bg-slate-50'"
+                  :class="adjustment.direction === 'negative' ? 'border-brand-400 bg-brand-50' : 'border-slate-200 hover:bg-slate-50'"
                 >
-                  <input v-model="adjustment.direction" type="radio" value="negative" class="accent-red-600 w-4 h-4" />
+                  <input v-model="adjustment.direction" type="radio" value="negative" class="accent-brand-600 w-4 h-4" />
                   <span class="text-sm text-slate-700">Negative (remove stock)</span>
                 </label>
               </div>
@@ -613,9 +632,9 @@
                   <template v-else>{{ adjustment.stock.toLocaleString() }}</template>
                 </p>
               </div>
-              <div class="rounded-xl border px-4 py-3" :class="afterIsNegative ? 'border-red-200 bg-red-50' : 'border-slate-100 bg-slate-50'">
+              <div class="rounded-xl border px-4 py-3" :class="afterIsNegative ? 'border-brand-200 bg-brand-50' : 'border-slate-100 bg-slate-50'">
                 <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">After adjustment</p>
-                <p class="text-2xl font-bold mt-0.5" :class="afterIsNegative ? 'text-red-600' : 'text-slate-800'">
+                <p class="text-2xl font-bold mt-0.5" :class="afterIsNegative ? 'text-brand-600' : 'text-slate-800'">
                   {{ adjustmentAfter === null ? '—' : adjustmentAfter.toLocaleString() }}
                 </p>
               </div>
@@ -626,7 +645,7 @@
               <textarea v-model="adjustment.remarks" rows="2" placeholder="Reason for the adjustment…" class="form-input"></textarea>
             </div>
 
-            <div v-if="afterIsNegative" class="text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+            <div v-if="afterIsNegative" class="text-sm text-brand-700 bg-brand-50 border border-brand-100 rounded-lg px-4 py-3">
               This would leave the stock below zero.
             </div>
 
@@ -641,7 +660,7 @@
               <button
                 type="submit"
                 :disabled="!canSubmitAdjustment"
-                class="px-5 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-colors"
+                class="px-5 py-2 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 transition-colors"
               >
                 Save adjustment
               </button>
@@ -674,6 +693,8 @@ import TablePaginator from '../components/TablePaginator.vue'
 import ImageViewer from '../components/ImageViewer.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { NEUTRAL_PILL, QTY_ON_HAND_CELL, QTY_ON_HAND_EMPTY_CELL, inventoryStatusClass } from '../config/statusColors.js'
+
+defineProps({ embedded: { type: Boolean, default: false } })
 
 const MAX_ATTACHMENT_MB = 25
 
@@ -743,6 +764,8 @@ const toast = ref(null)
 const search = ref('')
 const categoryFilter = ref('')
 const locationFilter = ref('')
+const systemFilter = ref('')
+const warehouseFilter = ref('')
 const onlyMissingPicture = ref(false)
 const page = ref(1)
 const pageSize = ref(storedPageSize())
@@ -864,7 +887,7 @@ function cellClass(col, record) {
 function qtyOnHandTextClass(value) {
   const n = Number(value)
   if (!Number.isFinite(n)) return 'text-slate-400'
-  if (n <= 0) return 'text-red-700'
+  if (n <= 0) return 'text-brand-700'
   return 'text-blue-900'
 }
 
@@ -890,6 +913,8 @@ function optionsFrom(field) {
 
 const categoryOptions = computed(() => optionsFrom('category'))
 const locationOptions = computed(() => optionsFrom('location'))
+const systemOptions = computed(() => optionsFrom('system'))
+const warehouseOptions = computed(() => optionsFrom('warehouse'))
 
 const SEARCH_FIELDS = ['tpn', 'micPartNumber', 'description1', 'description2', 'type', 'spec', 'brand', 'supplier']
 
@@ -899,6 +924,8 @@ const filtered = computed(() => {
   return records.value.filter(record => {
     if (categoryFilter.value && record.category !== categoryFilter.value) return false
     if (locationFilter.value && record.location !== locationFilter.value) return false
+    if (systemFilter.value && record.system !== systemFilter.value) return false
+    if (warehouseFilter.value && record.warehouse !== warehouseFilter.value) return false
     if (onlyMissingPicture.value && record.picture) return false
 
     if (!query) return true
@@ -1168,7 +1195,7 @@ onUnmounted(() => {
 })
 
 // A filter change can leave the viewer past the end of the shorter result set.
-watch([search, categoryFilter, locationFilter, onlyMissingPicture, sortKey, sortDir], () => { page.value = 1 })
+watch([search, categoryFilter, locationFilter, systemFilter, warehouseFilter, onlyMissingPicture, sortKey, sortDir], () => { page.value = 1 })
 
 watch(pageSize, (size, previous) => {
   // Anchor on the row that was at the top of the page. Keeping the page number instead would

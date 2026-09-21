@@ -17,7 +17,7 @@
           type="button"
           @click="exportPdf"
           :disabled="!tableRows.length"
-          class="px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          class="px-4 py-2 text-sm font-bold text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >⤓ Export PDF</button>
       </div>
     </div>
@@ -31,7 +31,7 @@
           :key="p.label"
           type="button"
           @click="applyPreset(p)"
-          class="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-full hover:border-red-200 hover:text-red-600 transition-colors"
+          class="px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-full hover:border-brand-200 hover:text-brand-600 transition-colors"
         >{{ p.label }}</button>
       </div>
     </div>
@@ -49,7 +49,7 @@
               type="button"
               @click="selectSource(key)"
               class="px-3 py-2 text-sm font-semibold rounded-lg border transition-colors"
-              :class="sourceKey === key ? 'bg-red-50 border-red-300 text-red-700' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'"
+              :class="sourceKey === key ? 'bg-brand-50 border-brand-300 text-brand-700' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'"
             >{{ s.label }}</button>
           </div>
         </div>
@@ -64,18 +64,25 @@
         <div>
           <div class="flex items-center justify-between mb-2">
             <p class="form-label-sm">Columns</p>
-            <div class="flex gap-2 text-xs">
-              <button type="button" @click="selectAllColumns" class="text-slate-400 hover:text-red-600 font-semibold">All</button>
-              <button type="button" @click="selectedColumns = []" class="text-slate-400 hover:text-red-600 font-semibold">None</button>
+            <div v-if="!groupBy" class="flex gap-2 text-xs">
+              <button type="button" @click="selectAllColumns" class="text-slate-400 hover:text-brand-600 font-semibold">All</button>
+              <button type="button" @click="selectedColumns = []" class="text-slate-400 hover:text-brand-600 font-semibold">None</button>
             </div>
           </div>
-          <div class="space-y-1 max-h-56 overflow-auto pr-1">
+          <!-- A grouped report always shows Group / Count / Sum, so per-field columns are
+               irrelevant while it's on — disabled rather than hidden, so it's clear it isn't
+               broken, and a preset that grouped the report doesn't strand you here. -->
+          <div v-if="groupBy" class="text-xs text-slate-400 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2.5">
+            This report is grouped (below), so it lists Group, Count and Sum instead of individual columns.
+            Set Group by to "No grouping" to pick columns again.
+          </div>
+          <div v-else class="space-y-1 max-h-56 overflow-auto pr-1">
             <label
               v-for="f in currentSource.fields"
               :key="f.key"
               class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer py-0.5"
             >
-              <input type="checkbox" :value="f.key" v-model="selectedColumns" class="rounded border-slate-300 text-red-600 focus:ring-red-400" />
+              <input type="checkbox" :value="f.key" v-model="selectedColumns" class="rounded border-slate-300 text-brand-600 focus:ring-brand-400" />
               {{ f.label }}
             </label>
           </div>
@@ -194,12 +201,13 @@ const sources = {
       { key: 'rowId', label: 'Receipt ID' }, { key: 'tpn', label: 'TPN' }, { key: 'description1', label: 'Description' },
       { key: 'micPartNumber', label: 'MIC Part #' }, { key: 'qty', label: 'Qty', type: 'number' }, { key: 'unit', label: 'Unit' },
       { key: 'location', label: 'Location', type: 'array' }, { key: 'condition', label: 'Condition' }, { key: 'system', label: 'System' },
+      { key: 'warehouse', label: 'Warehouse' },
       { key: 'brand', label: 'Brand' }, { key: 'category', label: 'Category' }, { key: 'supplier', label: 'Supplier' },
       { key: 'transmittalId', label: 'Transmittal' }, { key: 'batch', label: 'Batch' },
     ],
-    defaults: ['rowId', 'tpn', 'description1', 'qty', 'unit', 'condition', 'system', 'supplier'],
-    filters: [{ key: 'system' }, { key: 'condition' }, { key: 'category' }, { key: 'supplier' }],
-    dateField: null, numeric: ['qty'], groupable: ['system', 'condition', 'category', 'supplier', 'brand'],
+    defaults: ['rowId', 'tpn', 'description1', 'qty', 'unit', 'condition', 'system', 'warehouse', 'supplier'],
+    filters: [{ key: 'system' }, { key: 'warehouse' }, { key: 'condition' }, { key: 'category' }, { key: 'supplier' }],
+    dateField: null, numeric: ['qty'], groupable: ['system', 'warehouse', 'condition', 'category', 'supplier', 'brand'],
   },
   movements: {
     label: 'Inventory Movements', endpoint: '/api/inventory/movements', pick: d => d,
@@ -214,6 +222,24 @@ const sources = {
     defaults: ['createdAt', 'movementType', 'tpn', 'description1', 'system', 'direction', 'qty', 'createdBy'],
     filters: [{ key: 'system' }, { key: 'movementType', label: 'Type' }, { key: 'direction', label: 'In/Out' }],
     dateField: 'createdAt', numeric: ['qty', 'signedQty'], groupable: ['system', 'movementType', 'direction', 'createdBy', 'tpn', 'category', 'supplier'],
+  },
+  transfers: {
+    // Internal name for what the team calls a "Transfer" — a transmittal between two of our
+    // own teams/systems rather than an outside requester.
+    label: 'Internal Transfer Requests', endpoint: '/api/transfers', pick: d => d,
+    fields: [
+      { key: 'id', label: 'Transfer ID' }, { key: 'tpn', label: 'TPN' }, { key: 'description', label: 'Description' },
+      { key: 'qty', label: 'Qty', type: 'number' }, { key: 'unit', label: 'Unit' },
+      { key: 'fromSystem', label: 'From System' }, { key: 'toSystem', label: 'To System' },
+      { key: 'status', label: 'Status' }, { key: 'createdBy', label: 'Requested By' }, { key: 'createdAt', label: 'Requested', type: 'date' },
+      { key: 'approvedBy', label: 'Approved By' }, { key: 'approvedAt', label: 'Approved', type: 'date' },
+      { key: 'receivedBy', label: 'Received By' }, { key: 'receivedAt', label: 'Received', type: 'date' },
+      { key: 'cancelledBy', label: 'Cancelled By' }, { key: 'cancelledAt', label: 'Cancelled', type: 'date' },
+      { key: 'note', label: 'Note' },
+    ],
+    defaults: ['id', 'tpn', 'description', 'qty', 'fromSystem', 'toSystem', 'status', 'createdAt'],
+    filters: [{ key: 'status' }, { key: 'fromSystem', label: 'From System' }, { key: 'toSystem', label: 'To System' }],
+    dateField: 'createdAt', numeric: ['qty'], groupable: ['status', 'fromSystem', 'toSystem', 'createdBy'],
   },
   users: {
     label: 'Users', endpoint: '/api/users', pick: d => d.users || [],
@@ -241,6 +267,8 @@ const presets = [
   { label: 'Movements by Type', source: 'movements', groupBy: 'movementType', sumField: 'qty', title: 'Movements by Type' },
   { label: 'Damaged Receipts', source: 'inbound', filters: { condition: 'Damaged' }, columns: ['rowId', 'tpn', 'description1', 'qty', 'condition', 'system', 'supplier'], title: 'Damaged / Quarantined Receipts' },
   { label: 'Users by System', source: 'users', groupBy: 'system', title: 'Users by System' },
+  { label: 'Transfers In Transit', source: 'transfers', filters: { status: 'In Transit' }, columns: ['id', 'tpn', 'description', 'qty', 'fromSystem', 'toSystem', 'status', 'createdAt'], title: 'Internal Transfers In Transit' },
+  { label: 'Transfers by System', source: 'transfers', groupBy: 'fromSystem', title: 'Internal Transfer Requests by System' },
 ]
 
 // ----- State ------------------------------------------------------------------
@@ -440,7 +468,7 @@ function exportPdf() {
     <style>
       *{box-sizing:border-box} body{font-family:'Segoe UI',Tahoma,sans-serif;color:#0f172a;margin:0;padding:28px}
       h1{font-size:18px;margin:0 0 2px} .sub{color:#64748b;font-size:12px;margin-bottom:16px}
-      .band{border-bottom:3px solid #dc2626;padding-bottom:8px;margin-bottom:14px}
+      .band{border-bottom:3px solid #285f8c;padding-bottom:8px;margin-bottom:14px}
       table{width:100%;border-collapse:collapse;font-size:11px}
       th{background:#f1f5f9;text-align:left;padding:6px 8px;border:1px solid #e2e8f0;text-transform:uppercase;font-size:10px;color:#475569}
       td{padding:5px 8px;border:1px solid #e2e8f0}

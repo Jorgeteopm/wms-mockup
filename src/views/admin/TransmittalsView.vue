@@ -13,7 +13,7 @@
           <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">System</span>
           <select
             v-model="systemFilter"
-            class="px-3 py-1.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300"
+            class="px-3 py-1.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-brand-100 focus:border-brand-300"
           >
             <option value="">All systems</option>
             <option v-for="s in SYSTEMS" :key="s" :value="s">{{ s }}</option>
@@ -140,7 +140,7 @@
           <template v-for="bar in barData" :key="bar.week">
             <div class="flex-1 flex flex-col items-center gap-1 group relative">
               <div
-                class="w-full rounded-t bg-red-400 group-hover:bg-red-500 transition-colors"
+                class="w-full rounded-t bg-brand-400 group-hover:bg-brand-500 transition-colors"
                 :style="{ height: bar.pct + '%', minHeight: bar.count ? '4px' : '0' }"
               />
               <span class="text-[10px] text-slate-400 leading-none">{{ bar.label }}</span>
@@ -205,7 +205,7 @@
           :key="cat.key"
           @click="filterCategory = cat.key"
           :class="filterCategory === cat.key
-            ? 'bg-red-600 text-white'
+            ? 'bg-brand-600 text-white'
             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'"
           class="px-3 py-1.5 text-xs font-semibold rounded-full transition-colors whitespace-nowrap"
         >
@@ -222,13 +222,13 @@
               :key="tab.key"
               @click="activeTab = tab.key"
               :class="activeTab === tab.key
-                ? 'border-b-2 border-red-500 text-red-600 font-semibold'
+                ? 'border-b-2 border-brand-500 text-brand-600 font-semibold'
                 : 'text-slate-500 hover:text-slate-700'"
               class="px-3 py-2 text-sm transition-colors whitespace-nowrap"
             >
               {{ tab.label }}
               <span class="ml-1 text-xs rounded-full px-1.5 py-0.5"
-                :class="activeTab === tab.key ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'"
+                :class="activeTab === tab.key ? 'bg-brand-100 text-brand-600' : 'bg-slate-100 text-slate-500'"
               >{{ tab.count }}</span>
             </button>
           </template>
@@ -238,13 +238,13 @@
               :key="tab.key"
               @click="activeTransmittalTab = tab.key"
               :class="activeTransmittalTab === tab.key
-                ? 'border-b-2 border-red-500 text-red-600 font-semibold'
+                ? 'border-b-2 border-brand-500 text-brand-600 font-semibold'
                 : 'text-slate-500 hover:text-slate-700'"
               class="px-3 py-2 text-sm transition-colors whitespace-nowrap"
             >
               {{ tab.label }}
               <span class="ml-1 text-xs rounded-full px-1.5 py-0.5"
-                :class="activeTransmittalTab === tab.key ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'"
+                :class="activeTransmittalTab === tab.key ? 'bg-brand-100 text-brand-600' : 'bg-slate-100 text-slate-500'"
               >{{ tab.count }}</span>
             </button>
           </template>
@@ -254,13 +254,13 @@
               :key="tab.key"
               @click="activeRecipientTab = tab.key"
               :class="activeRecipientTab === tab.key
-                ? 'border-b-2 border-red-500 text-red-600 font-semibold'
+                ? 'border-b-2 border-brand-500 text-brand-600 font-semibold'
                 : 'text-slate-500 hover:text-slate-700'"
               class="px-3 py-2 text-sm transition-colors whitespace-nowrap"
             >
               {{ tab.label }}
               <span class="ml-1 text-xs rounded-full px-1.5 py-0.5"
-                :class="activeRecipientTab === tab.key ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'"
+                :class="activeRecipientTab === tab.key ? 'bg-brand-100 text-brand-600' : 'bg-slate-100 text-slate-500'"
               >{{ tab.count }}</span>
             </button>
           </template>
@@ -269,7 +269,7 @@
           <!-- Filter by company -->
           <select
             v-model="companyFilter"
-            class="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-red-300"
+            class="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-300"
           >
             <option value="all">All Companies</option>
             <option v-for="c in companyOptions" :key="c" :value="c">{{ c }}</option>
@@ -281,21 +281,21 @@
             v-model="dateFrom"
             type="date"
             title="From date"
-            class="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-red-300"
+            class="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
           <span class="text-slate-400 text-sm">–</span>
           <input
             v-model="dateTo"
             type="date"
             title="To date"
-            class="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-red-300"
+            class="text-sm border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
 
           <input
             v-model="search"
             type="text"
             placeholder="Search company, applicant…"
-            class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 w-56 focus:outline-none focus:ring-2 focus:ring-red-300"
+            class="text-sm border border-slate-200 rounded-lg px-3 py-1.5 w-56 focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
         </div>
       </div>
@@ -357,7 +357,7 @@
                       v-model="remarkDraft"
                       type="text"
                       placeholder="Add an ID…"
-                      class="w-full pl-2 pr-14 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-300"
+                      class="w-full pl-2 pr-14 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-300"
                       @keydown.enter="saveRemark(row)"
                       @keydown.escape="cancelRemark"
                     />
@@ -404,7 +404,7 @@
                       v-model="commentsDraft"
                       rows="2"
                       placeholder="Add a comment…"
-                      class="w-full pl-2 pr-14 py-1 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-red-300"
+                      class="w-full pl-2 pr-14 py-1 text-sm border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-brand-300"
                       @keydown.escape="cancelComments"
                     ></textarea>
                     <div class="absolute top-1 right-1 flex items-center gap-0.5">
@@ -479,7 +479,7 @@
                     type="button"
                     @click.stop="openTransmittalReport(row.rowId)"
                     title="Generate lifecycle report"
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-red-600 hover:border-red-200 transition-colors whitespace-nowrap"
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 hover:text-brand-600 hover:border-brand-200 transition-colors whitespace-nowrap"
                   >
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -544,7 +544,7 @@
                         class="inline-block px-6 py-2.5 text-white text-sm font-bold rounded-lg transition-colors"
                         :class="canContinuePd(row)
                           ? 'bg-amber-500 hover:bg-amber-600'
-                          : 'bg-red-600 hover:bg-red-700'"
+                          : 'bg-brand-600 hover:bg-brand-700'"
                       >
                         {{ canContinuePd(row) ? 'Continue Partial Delivery ↗' : 'View Transmittal ↗' }}
                       </a>
@@ -579,7 +579,7 @@
               type="button"
               @click="printPdfModal"
               :disabled="pdfLoading"
-              class="px-4 py-1.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="px-4 py-1.5 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Print
             </button>
@@ -602,7 +602,7 @@
             v-if="pdfLoading"
             class="absolute inset-0 bg-white flex flex-col items-center justify-center gap-3 text-slate-400"
           >
-            <svg class="animate-spin h-6 w-6 text-red-400" viewBox="0 0 24 24" fill="none">
+            <svg class="animate-spin h-6 w-6 text-brand-400" viewBox="0 0 24 24" fill="none">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
             </svg>
@@ -781,7 +781,7 @@ function shortLabel(value) {
 
 function urgencyBadgeClass(level) {
   const key = String(level || '').toLowerCase()
-  if (key.startsWith('high'))   return 'bg-red-100 text-red-700'
+  if (key.startsWith('high'))   return 'bg-brand-100 text-brand-700'
   if (key.startsWith('medium')) return 'bg-orange-100 text-orange-700'
   if (key.startsWith('low'))    return 'bg-amber-100 text-amber-700'
   return 'bg-orange-100 text-orange-700'
@@ -1038,7 +1038,7 @@ const DOC_CSS = `
   *{box-sizing:border-box} body{font-family:'Segoe UI',Tahoma,sans-serif;color:#0f172a;margin:0;padding:32px;background:#fff}
   .sheet{max-width:820px;margin:0 auto}
   h1{font-size:20px;margin:0 0 2px} .sub{color:#64748b;font-size:12px;margin-bottom:18px}
-  .band{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #dc2626;padding-bottom:10px;margin-bottom:16px}
+  .band{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #285f8c;padding-bottom:10px;margin-bottom:16px}
   .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11px;font-weight:700}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:13px;margin-bottom:18px}
   .grid div span{color:#64748b} .lbl{color:#64748b;font-size:11px;text-transform:uppercase;letter-spacing:.04em}

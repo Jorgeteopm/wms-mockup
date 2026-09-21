@@ -1,26 +1,36 @@
-export const LAYDOWN_HUB_PATH = '/laydown-portal'
+export const MATERIALS_HUB_PATH = '/materials-hub'
 
 export const INBOUND_FORM = {
-  path:        '/inbound',
-  reprintPath: '/reprint-labels',
-  label:       'Pinnacle Peak',
-  blurb:       'Register material inbounds and print receiving labels',
+  label: 'Pinnacle Peak',
+  blurb: 'Register material inbounds and print receiving labels',
 }
 
 export const LAYDOWN_FORM = {
-  path:        `${LAYDOWN_HUB_PATH}?tab=new`,
-  reprintPath: `${LAYDOWN_HUB_PATH}?tab=reprint`,
-  label:       'Laydown Yard',
-  blurb:       'Create new material submission',
-  hub:         LAYDOWN_HUB_PATH,
+  label: 'Laydown Yard',
+  blurb: 'Create new material submission',
 }
 
-export const PINNACLE_PEAK_MENU_LABEL = INBOUND_FORM.label
-
-export const MATERIALS_LIST_PATH = '/materials-list'
-
-export const PINNACLE_PEAK_LINKS = [
-  { path: INBOUND_FORM.path, label: 'New Inbound', blurb: INBOUND_FORM.blurb },
-  { path: INBOUND_FORM.reprintPath, label: 'Reprint Labels', blurb: 'Scan a barcode and reprint its label' },
-  { path: MATERIALS_LIST_PATH, label: 'Materials List', blurb: 'Browse the materials database, pictures and files' },
+// The two receiving forms, condensed under one "Materials" nav entry. `section` picks which
+// one is live; each keeps its own tab set, matching what it printed as a standalone form.
+export const MATERIAL_SECTIONS = [
+  {
+    key:           'material',
+    label:         'Material',
+    tabs: [
+      { key: 'new',     label: 'New Inbound' },
+      { key: 'reprint', label: 'Reprint Labels' },
+      { key: 'list',    label: 'Materials List' },
+    ],
+  },
+  {
+    key:           'equipment',
+    label:         'Equipment',
+    tabs: [
+      { key: 'new',       label: 'New Inbound' },
+      { key: 'breakdown', label: 'Create New Set' },
+      { key: 'outbound',  label: 'New Inbound/Outbound' },
+      { key: 'reprint',   label: 'Reprint Labels' },
+      { key: 'list',      label: 'Equipment List' },
+    ],
+  },
 ]

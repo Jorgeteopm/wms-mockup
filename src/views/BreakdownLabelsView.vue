@@ -98,13 +98,13 @@
                 @click="selectParent(row, false)"
                 class="border-t border-slate-100 transition-colors"
                 :class="[
-                  loadingParent ? 'cursor-wait pointer-events-none opacity-60' : 'cursor-pointer hover:bg-red-50',
-                  row.rowId === parent.rowId ? 'bg-red-50' : ''
+                  loadingParent ? 'cursor-wait pointer-events-none opacity-60' : 'cursor-pointer hover:bg-brand-50',
+                  row.rowId === parent.rowId ? 'bg-brand-50' : ''
                 ]"
               >
                 <td class="px-3 py-2.5 font-mono font-semibold text-slate-800 whitespace-nowrap">
                   <span class="inline-flex items-center gap-2">
-                    <svg v-if="loadingRowId === row.rowId" class="animate-spin h-3.5 w-3.5 text-red-500" viewBox="0 0 24 24" fill="none">
+                    <svg v-if="loadingRowId === row.rowId" class="animate-spin h-3.5 w-3.5 text-brand-500" viewBox="0 0 24 24" fill="none">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
                     </svg>
@@ -218,7 +218,7 @@
                       type="button"
                       @click="reprintChild(child)"
                       :disabled="printing"
-                      class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+                      class="px-3 py-1.5 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
                     >
                       Reprint
                     </button>
@@ -233,7 +233,7 @@
 
     <!-- Step 2 — describe the units -->
     <div v-if="loadingParent" class="rounded-xl border border-slate-100 bg-white shadow-sm p-10 flex flex-col items-center gap-3 text-slate-400">
-      <svg class="animate-spin h-6 w-6 text-red-400" viewBox="0 0 24 24" fill="none">
+      <svg class="animate-spin h-6 w-6 text-brand-400" viewBox="0 0 24 24" fill="none">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
       </svg>
@@ -260,7 +260,7 @@
               type="number"
               min="1"
               max="50"
-              class="w-24 text-sm border border-slate-200 rounded-lg px-2.5 py-3 text-center focus:outline-none focus:ring-2 focus:ring-red-300"
+              class="w-24 text-sm border border-slate-200 rounded-lg px-2.5 py-3 text-center focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>
 
@@ -272,7 +272,7 @@
               @click="previewIndex = i"
               class="px-2.5 py-1.5 text-xs font-semibold rounded-md border transition-colors tabular-nums"
               :class="i === previewIndex
-                ? 'text-white bg-red-600 border-red-600'
+                ? 'text-white bg-brand-600 border-brand-600'
                 : ((Number(unit.qty) || 0) > 0
                     ? 'text-slate-600 bg-white border-slate-300 hover:bg-slate-100'
                     : 'text-amber-700 bg-amber-50 border-amber-300 hover:bg-amber-100')"
@@ -287,7 +287,7 @@
                 v-model="useAutoPartNumber"
                 type="checkbox"
                 :disabled="!parentHasMic"
-                class="accent-red-600 w-4 h-4"
+                class="accent-brand-600 w-4 h-4"
               />
               <span class="text-sm font-semibold text-slate-700">Display the auto generated Part Number for the barcode?</span>
             </label>
@@ -326,7 +326,7 @@
                 class="rounded-lg bg-slate-100 border border-slate-200 p-3 flex flex-col gap-1.5"
               >
                 <label class="form-label-sm">
-                  {{ field.label }} <span class="text-red-500">*</span>
+                  {{ field.label }} <span class="text-brand-500">*</span>
                 </label>
                 <input
                   v-model.number="previewUnit[field.key]"
@@ -339,7 +339,7 @@
 
             <p
               v-if="outboundExceedsInbound"
-              class="text-xs text-red-600 font-semibold"
+              class="text-xs text-brand-600 font-semibold"
             >
               Outbound Qty is more than the Inbound Qty — a unit cannot ship more than arrived.
             </p>
@@ -353,7 +353,7 @@
               >
                 <label class="form-label-sm">
                   {{ field.label }}
-                  <span v-if="field.required" class="text-red-500">*</span>
+                  <span v-if="field.required" class="text-brand-500">*</span>
                   <span v-if="field.type === 'growable'" class="text-slate-400 font-normal normal-case">
                     (Autocompletion Supported)
                   </span>
@@ -431,13 +431,13 @@
                     type="button"
                     @click="previewUnit.photos.splice(p, 1)"
                     title="Remove"
-                    class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center text-white bg-red-600 rounded-full hover:bg-red-700 transition-colors shadow-sm leading-none text-xs"
+                    class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center text-white bg-brand-600 rounded-full hover:bg-brand-700 transition-colors shadow-sm leading-none text-xs"
                   >×</button>
                 </div>
 
                 <div class="flex flex-col gap-1">
                   <div
-                    class="aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-red-400 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center"
+                    class="aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-brand-400 hover:bg-brand-50 transition-colors cursor-pointer flex items-center justify-center"
                     @click="fileInput?.click()"
                   >
                     <svg class="w-5 h-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -449,7 +449,7 @@
                     type="button"
                     @click="openCamera"
                     title="Take photo"
-                    class="w-full min-h-[40px] flex items-center justify-center gap-1 px-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors"
+                    class="w-full min-h-[40px] flex items-center justify-center gap-1 px-1 py-2 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors"
                   >
                     <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -515,7 +515,7 @@
               type="button"
               @click="createBreakdown"
               :disabled="creating || !canSubmit"
-              class="px-6 py-3 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {{ creating
                 ? 'Creating…'
@@ -552,7 +552,7 @@
 
           <div class="label-card">
             <div class="lbl-header">
-              <img src="/mic.png" alt="MIC" class="lbl-logo" />
+              <img src="/wms-icon-color.png" alt="WMS" class="lbl-logo" />
               <div class="lbl-title">LAYDOWN YARD<br>BREAKDOWN</div>
             </div>
 
@@ -643,7 +643,7 @@
         v-for="opt in picklists[field].filtered"
         :key="opt"
         @mousedown.prevent="picklists[field].select(opt)"
-        class="px-3 py-3 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ opt }}
       </li>
@@ -662,7 +662,7 @@
         v-for="row in filteredByLdypn"
         :key="row.rowId"
         @mousedown.prevent="selectParent(row)"
-        class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         <div class="font-mono font-medium text-slate-800 leading-tight">{{ row.partNumber }}</div>
         <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -685,7 +685,7 @@
         v-for="row in filteredByPn"
         :key="row.rowId"
         @mousedown.prevent="selectParent(row)"
-        class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         <div class="font-mono font-medium text-slate-800 leading-tight">{{ row.micPartNumber }}</div>
         <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -708,7 +708,7 @@
         v-for="row in filteredByChemical"
         :key="row.rowId"
         @mousedown.prevent="selectParent(row)"
-        class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         <div class="font-medium text-slate-800 leading-tight">{{ row.chemical }}</div>
         <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -740,7 +740,7 @@
             <button
               type="button"
               @click="capturePhoto"
-              class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+              class="px-4 py-2 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
             >
               Capture
             </button>
@@ -1547,7 +1547,7 @@ const busyMessage = computed(() => {
   padding-bottom: 0.06in;
   border-bottom: 3px solid #000;
 }
-.lbl-logo { height: 0.32in; width: auto; }
+.lbl-logo { height: 0.4in; width: auto; }
 .lbl-title {
   font-size: 14px;
   font-weight: 800;
