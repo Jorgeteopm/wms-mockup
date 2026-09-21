@@ -703,6 +703,7 @@ const routes = [
   ['POST',  /^\/api\/materials-db\/([^/]+)\/attachments$/, (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); if (r) { r.attachmentCount = (r.attachmentCount || 0) + 1; persist() } return json({ message: 'Uploaded', failed: [] }) }],
   ['DELETE',/^\/api\/materials-db\/([^/]+)\/attachments\/([^/]+)$/, (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); if (r && r.attachmentCount > 0) { r.attachmentCount--; persist() } return json({ message: 'Deleted' }) }],
   ['POST',  /^\/api\/materials-db\/([^/]+)\/picture$/,     () => json({ picture: { id: 'pic-new' }, message: 'Picture saved' })],
+  ['POST',  /^\/api\/materials-db\/([^/]+)\/outbound$/,    async (p, init) => { const r = outboundMaterial(p[1], await readBody(init)); return r.error ? json({ message: r.error }, 400) : json({ message: 'Outbound recorded', record: r.record }) }],
   ['PATCH', /^\/api\/materials-db\/([^/]+)$/,              async (p, init) => { const b = await readBody(init); const r = db.materialsDb.find(x => x.rowId === p[1]); if (r && b.fields) { Object.assign(r, b.fields); persist() } return json({ record: r || (b.fields || {}), message: 'Saved' }) }],
 
   // --- laydown yard (Smartsheet-backed) ---
@@ -711,6 +712,7 @@ const routes = [
   ['GET',  /^\/api\/laydown\/([^/]+)\/breakdown$/,  (p) => { const parent = db.laydown.find(r => r.rowId === p[1]) || db.laydown[0]; const children = db.laydown.filter(r => r.parentRowId === parent.rowId); return json({ parent, children, nextSequence: children.length + 1 }) }],
   ['POST', /^\/api\/laydown\/([^/]+)\/breakdown$/,  async (p, init) => addLaydownChildren(p[1], await readBody(init))],
   ['POST', /^\/api\/laydown\/([^/]+)\/set-units-outbound$/, async (p, init) => addLaydownChildren(p[1], await readBody(init))],
+  ['POST', /^\/api\/laydown\/([^/]+)\/outbound$/,   async (p, init) => { const r = outboundLaydown(p[1], await readBody(init)); return r.error ? json({ message: r.error }, 400) : json({ message: 'Outbound recorded', record: r.record }) }],
 
   // --- rose garden (SQL / backend_v2) ---
   ['GET',  /^\/api\/rosegarden\/next-id$/,          () => json({ nextId: db.seq.laydownPn })],
@@ -799,6 +801,50 @@ function addInbound(b, quarantine) {
   }
   persist()
   return matRowId
+}
+
+// Releases stock from the Pinnacle materials catalog to whoever picked it up - the New
+// Outbound form's counterpart to addInbound(). Writes a signed 'Out' row to the same ledger
+// /api/inventory/movements already reads, so it shows up in Recent Activity for free.
+function outboundMaterial(rowId, b) {
+  const r = db.materialsDb.find(x => x.rowId === rowId)
+  if (!r) return { error: 'Material not found.' }
+
+  const qty = Number(b.qty || 0)
+  if (!(qty > 0)) return { error: 'Enter a quantity greater than zero.' }
+  if (qty > r.totalInventory) return { error: `Only ${r.totalInventory} ${r.unit} on hand — cannot release ${qty}.` }
+
+  r.totalInventory -= qty
+  r.qtyOnHand = r.totalInventory
+  r.inventoryStatus = invStatusFor(r.qtyOnHand)
+
+  const u = sessionUser()
+  db.inbound.unshift({
+    rowId: `MOV-${db.seq.movement++}`, movementType: 'Outbound', direction: 'Out',
+    tpn: r.tpn, barcodeTpn: r.tpn, description1: r.description1, description2: r.description2, micPartNumber: r.micPartNumber,
+    qty, unit: r.unit, location: String(b.from || r.location || '').split(',').map(s => s.trim()).filter(Boolean),
+    warehouse: r.warehouse, system: r.system, brand: r.brand, type: r.type, category: r.category, spec: r.spec, supplier: r.supplier,
+    condition: '', transmittalId: '', deliveredTo: b.deliveredTo || '',
+    createdBy: (u && u.name) || 'Unknown', createdAt: today(),
+    reason: b.remarks || '', remark: b.remarks || '', batch: '',
+  })
+  persist()
+  return { record: r }
+}
+
+// Same idea for a Laydown Yard unit - there's no separate movements ledger for equipment, so
+// the quantity on the unit itself is the only thing that moves.
+function outboundLaydown(rowId, b) {
+  const r = db.laydown.find(x => x.rowId === rowId)
+  if (!r) return { error: 'Unit not found.' }
+
+  const qty = Number(b.qty || 0)
+  if (!(qty > 0)) return { error: 'Enter a quantity greater than zero.' }
+  if (qty > r.qty) return { error: `Only ${r.qty} on this unit — cannot release ${qty}.` }
+
+  r.qty -= qty
+  persist()
+  return { record: r }
 }
 
 function addLaydownChildren(parentId, b) {
