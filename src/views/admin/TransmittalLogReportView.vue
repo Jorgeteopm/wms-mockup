@@ -32,7 +32,7 @@
         <button
           @click="openPdf"
           :disabled="loading || !rows.length"
-          class="px-3 py-1.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+          class="px-3 py-1.5 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-50 transition-colors"
         >
           Export PDF
         </button>

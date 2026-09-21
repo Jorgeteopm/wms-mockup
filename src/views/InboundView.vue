@@ -1,20 +1,12 @@
 <template>
   <div ref="scanPanelEl" class="max-w-7xl mx-auto space-y-6" @focusout="onPanelFocusOut">
 
-    <!-- Header — title left, action right, same row, matching the dashboard's layout. -->
-    <div class="flex items-center justify-between gap-3">
-      <div>
-        <h1 class="text-xl font-bold text-slate-800">{{ INBOUND_FORM.label }}</h1>
-        <p class="text-sm text-slate-500 mt-0.5">{{ INBOUND_FORM.blurb }}</p>
-      </div>
-      <!-- Placeholder anchor — href left for you to fill in. -->
-      <a
-        href="https://app.smartsheet.com/dashboards/f6gfm3Mx32m4hvGmP85QVXPFfP3jPHrrwgWCGQX1"
-        class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shrink-0"
-      >
-        Go to the Smartsheet Dashboard
-      </a>
+    <!-- Header -->
+    <div v-if="!embedded">
+      <h1 class="text-xl font-bold text-slate-800">{{ INBOUND_FORM.label }}</h1>
+      <p class="text-sm text-slate-500 mt-0.5">{{ INBOUND_FORM.blurb }}</p>
     </div>
+    <p v-else class="text-sm text-slate-500">{{ INBOUND_FORM.blurb }}</p>
 
     <!-- Error banner -->
     <div v-if="error" class="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
@@ -41,15 +33,15 @@
           <label class="form-label">Barcode</label>
           <div class="flex gap-2">
             <label class="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg hover:bg-slate-50">
-              <input v-model="barcodeForm.showScanner" type="radio" value="barcodeYes" class="accent-red-600 w-5 h-5" />
+              <input v-model="barcodeForm.showScanner" type="radio" value="barcodeYes" class="accent-brand-600 w-5 h-5" />
               <span class="text-sm text-slate-700">Camera</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg hover:bg-slate-50">
-              <input v-model="barcodeForm.showScanner" type="radio" value="barcodeNo" class="accent-red-600 w-5 h-5" />
+              <input v-model="barcodeForm.showScanner" type="radio" value="barcodeNo" class="accent-brand-600 w-5 h-5" />
               <span class="text-sm text-slate-700">Manual entry</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg hover:bg-slate-50">
-              <input v-model="barcodeForm.showScanner" type="radio" value="barcodeScanner" class="accent-red-600 w-5 h-5" />
+              <input v-model="barcodeForm.showScanner" type="radio" value="barcodeScanner" class="accent-brand-600 w-5 h-5" />
               <span class="text-sm text-slate-700">Scanner</span>
             </label>
           </div>
@@ -98,7 +90,7 @@
           <button
             type="button"
             @click="retryCamera"
-            class="px-3 py-1.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors shrink-0"
+            class="px-3 py-1.5 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors shrink-0"
           >
             Try again
           </button>
@@ -108,11 +100,11 @@
           <label class="form-label">Create new material record?</label>
           <div class="flex gap-2">
             <label class="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg hover:bg-slate-50">
-              <input v-model="createNewMaterial" type="radio" value="yes" class="accent-red-600 w-5 h-5" />
+              <input v-model="createNewMaterial" type="radio" value="yes" class="accent-brand-600 w-5 h-5" />
               <span class="text-sm text-slate-700">Yes</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer px-3 py-2.5 rounded-lg hover:bg-slate-50">
-              <input v-model="createNewMaterial" type="radio" value="no" class="accent-red-600 w-5 h-5" />
+              <input v-model="createNewMaterial" type="radio" value="no" class="accent-brand-600 w-5 h-5" />
               <span class="text-sm text-slate-700">No</span>
             </label>
           </div>
@@ -208,13 +200,13 @@
             <span
               v-for="loc in barcodeForm.location"
               :key="loc"
-              class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-sm font-semibold text-red-700 bg-red-50 border border-red-100 rounded-md"
+              class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1.5 text-sm font-semibold text-brand-700 bg-brand-50 border border-brand-100 rounded-md"
             >
               {{ loc }}
               <button
                 type="button"
                 @click.stop="removeLocation(loc)"
-                class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-100 rounded leading-none text-base"
+                class="w-6 h-6 flex items-center justify-center text-brand-400 hover:text-brand-600 hover:bg-brand-100 rounded leading-none text-base"
               >×</button>
             </span>
             <input
@@ -231,6 +223,11 @@
               @keydown.backspace="onLocationBackspace"
             />
           </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">Warehouse</label>
+          <input v-model="barcodeForm.warehouse" type="text" class="form-input" placeholder="Pinnacle Peak" />
         </div>
 
         <div v-if="createNewMaterial === 'yes'" class="space-y-4 border border-slate-200 rounded-lg p-4 bg-slate-50">
@@ -343,7 +340,7 @@
             <div v-for="slot in PHOTO_SLOTS" :key="slot.key" class="flex flex-col gap-1">
               <div
                 v-if="!photoSlots[slot.key]"
-                class="relative aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-red-400 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center"
+                class="relative aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-brand-400 hover:bg-brand-50 transition-colors cursor-pointer flex items-center justify-center"
                 @click="triggerSlotFilePicker(slot.key)"
               >
                 <svg class="w-5 h-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -368,7 +365,7 @@
                   type="button"
                   @click="removeSlotPhoto(slot.key)"
                   title="Remove"
-                  class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center text-white bg-red-600 rounded-full hover:bg-red-700 transition-colors shadow-sm leading-none text-xs"
+                  class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center text-white bg-brand-600 rounded-full hover:bg-brand-700 transition-colors shadow-sm leading-none text-xs"
                 >×</button>
               </div>
               <button
@@ -376,7 +373,7 @@
                 type="button"
                 @click="openCamera(slot.key)"
                 title="Take photo"
-                class="w-full min-h-[40px] flex items-center justify-center gap-1 px-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors"
+                class="w-full min-h-[40px] flex items-center justify-center gap-1 px-1 py-2 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors"
               >
                 <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -430,7 +427,7 @@
             type="button"
             @click="submitToQuarantine"
             :disabled="submittingQuarantine"
-            class="px-6 py-3 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {{ submittingQuarantine ? 'Submitting…' : 'Submit to Quarantine Area' }}
           </button>
@@ -440,7 +437,7 @@
             type="button"
             @click="createNewInbound"
             :disabled="creating || printing || labelQtyIncomplete"
-            class="px-6 py-3 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {{ printing ? 'Printing…' : (creating ? 'Creating…' : 'Create Inbound &amp; Print Label') }}
           </button>
@@ -453,7 +450,7 @@
 
         <div class="label-card">
           <div class="lbl-header">
-            <img src="/mic.png" alt="MIC" class="lbl-logo" />
+            <img src="/wms-icon-color.png" alt="WMS" class="lbl-logo" />
             <div class="lbl-title">MATERIAL<br>RECEIVING</div>
           </div>
 
@@ -509,7 +506,7 @@
             type="number"
             min="1"
             max="100"
-            class="w-24 text-sm border border-slate-200 rounded-lg px-2.5 py-3 text-center focus:outline-none focus:ring-2 focus:ring-red-300"
+            class="w-24 text-sm border border-slate-200 rounded-lg px-2.5 py-3 text-center focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
         </div>
 
@@ -520,7 +517,7 @@
               v-model.number="labelQuantities[i]"
               type="number"
               min="1"
-              class="w-24 text-sm border border-slate-200 rounded-lg px-2 py-2.5 text-center focus:outline-none focus:ring-2 focus:ring-red-300"
+              class="w-24 text-sm border border-slate-200 rounded-lg px-2 py-2.5 text-center focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>
         </div>
@@ -528,7 +525,7 @@
         <p class="text-xs text-slate-500 text-center">
           Total: <strong>{{ labelQuantitiesSum }}</strong> of <strong>{{ maxLabelQty || 0 }}</strong> received
         </p>
-        <p v-if="labelQtyExceedsMax" class="text-xs text-red-600 text-center font-semibold">
+        <p v-if="labelQtyExceedsMax" class="text-xs text-brand-600 text-center font-semibold">
           Label quantities exceed the amount received ({{ maxLabelQty }}).
         </p>
         <p v-else-if="maxLabelQty <= 0" class="text-xs text-amber-600 text-center font-semibold">
@@ -572,7 +569,7 @@
         v-for="inb in filteredInbounds"
         :key="inb.rowId"
         @mousedown.prevent="selectInbound(inb)"
-        class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         <div class="font-medium text-slate-800 leading-tight">{{ inb.tpn }}</div>
         <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -597,7 +594,7 @@
         v-for="inb in filteredDesc2Records"
         :key="inb.rowId ?? inb.tpn"
         @mousedown.prevent="selectDesc2Record(inb)"
-        class="px-3 py-3.5 text-sm hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         <div class="font-medium text-slate-800 leading-tight">{{ inb.description2 }}</div>
         <div class="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
@@ -620,9 +617,9 @@
         v-for="loc in filteredLocations"
         :key="loc"
         @mousedown.prevent="toggleLocation(loc)"
-        class="flex items-center gap-2 px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="flex items-center gap-2 px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
-        <input type="checkbox" :checked="barcodeForm.location.includes(loc)" class="accent-red-600 w-5 h-5 pointer-events-none" />
+        <input type="checkbox" :checked="barcodeForm.location.includes(loc)" class="accent-brand-600 w-5 h-5 pointer-events-none" />
         {{ loc }}
       </li>
       <li v-if="filteredLocations.length === 0" class="px-3 py-2 text-sm text-slate-400">
@@ -640,7 +637,7 @@
         v-for="u in filteredUnits"
         :key="u"
         @mousedown.prevent="selectUnit(u)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ u }}
       </li>
@@ -659,7 +656,7 @@
         v-for="c in filteredCategories"
         :key="c"
         @mousedown.prevent="selectCategory(c)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ c }}
       </li>
@@ -678,7 +675,7 @@
         v-for="v in desc1DD.filtered.value"
         :key="v"
         @mousedown.prevent="desc1DD.select(v)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ v }}
       </li>
@@ -696,7 +693,7 @@
         v-for="v in micPartNumberDD.filtered.value"
         :key="v"
         @mousedown.prevent="micPartNumberDD.select(v)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ v }}
       </li>
@@ -712,7 +709,7 @@
         v-for="v in typeDD.filtered.value"
         :key="v"
         @mousedown.prevent="typeDD.select(v)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ v }}
       </li>
@@ -728,7 +725,7 @@
         v-for="v in brandDD.filtered.value"
         :key="v"
         @mousedown.prevent="brandDD.select(v)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ v }}
       </li>
@@ -744,7 +741,7 @@
         v-for="v in specDD.filtered.value"
         :key="v"
         @mousedown.prevent="specDD.select(v)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ v }}
       </li>
@@ -760,7 +757,7 @@
         v-for="v in supplierDD.filtered.value"
         :key="v"
         @mousedown.prevent="supplierDD.select(v)"
-        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3.5 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ v }}
       </li>
@@ -788,7 +785,7 @@
           <button
             type="button"
             @click="showQuarantineNotice = false"
-            class="px-6 py-3 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            class="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Understood
           </button>
@@ -814,7 +811,7 @@
           <button
             type="button"
             @click="capturePhoto"
-            class="px-6 py-3 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            class="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Capture
           </button>
@@ -855,6 +852,8 @@ import { QrcodeStream } from 'vue-qrcode-reader'
 import { printLabelPdf } from '../composables/useLabelPrint.js'
 import { INBOUND_FORM } from '../config/forms.js'
 import { mergeByTpn } from '../utils/records.js'
+
+defineProps({ embedded: { type: Boolean, default: false } })
 
 const API = '/api'
 const error = ref('')
@@ -931,6 +930,7 @@ const barcodeForm = ref({
   quantity: '',
   unit: '',
   location: [],
+  warehouse: 'Pinnacle Peak',
   condition: '',
   remarks: '',
   dateCreated: '',
@@ -1117,6 +1117,7 @@ async function createNewInbound() {
         quantity: barcodeForm.value.quantity,
         unit: barcodeForm.value.unit,
         location: barcodeForm.value.location,
+        warehouse: barcodeForm.value.warehouse,
         condition: barcodeForm.value.condition,
         remarks: barcodeForm.value.remarks,
         description1: barcodeForm.value.description1,
@@ -1190,6 +1191,7 @@ async function submitToQuarantine() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         location: barcodeForm.value.location,
+        warehouse: barcodeForm.value.warehouse,
         tpn: barcodeForm.value.tpn,
         batch: barcodeForm.value.batch,
         quantity: barcodeForm.value.quantity,
@@ -2069,7 +2071,7 @@ const busyMessage = computed(() => {
   padding-bottom: 0.06in;
   border-bottom: 3px solid #000;
 }
-.lbl-logo { height: 0.32in; width: auto; }
+.lbl-logo { height: 0.4in; width: auto; }
 .lbl-title {
   font-size: 14px;
   font-weight: 800;

@@ -24,7 +24,7 @@
         -->
         <div class="rounded-lg bg-slate-100 border border-slate-200 p-3 space-y-2">
           <label class="flex items-center gap-2.5 cursor-pointer">
-            <input v-model="useAutoPartNumber" type="checkbox" class="accent-red-600 w-4 h-4" />
+            <input v-model="useAutoPartNumber" type="checkbox" class="accent-brand-600 w-4 h-4" />
             <span class="text-sm font-semibold text-slate-700">Display the auto generated Part Number for the barcode?</span>
           </label>
           <p class="text-xs text-slate-500">
@@ -42,24 +42,24 @@
         <div class="flex flex-col gap-1.5">
           <label class="form-label">
             MIC Part Number
-            <span v-if="!useAutoPartNumber" class="text-red-500">*</span>
+            <span v-if="!useAutoPartNumber" class="text-brand-500">*</span>
             <span v-else class="text-slate-400 font-normal normal-case">(optional)</span>
           </label>
           <input
             v-model="form.micPartNumber"
             type="text"
             class="form-input"
-            :class="micPartNumberConflict ? 'border-red-400 ring-2 ring-red-100' : ''"
+            :class="micPartNumberConflict ? 'border-brand-400 ring-2 ring-brand-100' : ''"
             placeholder="MIC part number"
           />
-          <p v-if="micPartNumberConflict" class="text-xs text-red-600 font-semibold">
+          <p v-if="micPartNumberConflict" class="text-xs text-brand-600 font-semibold">
             Already used by {{ micPartNumberConflictLabel }} - the barcode would match two different Core Units.
           </p>
         </div>
 
         <div class="flex flex-col gap-1.5 relative chemical-dropdown-cell">
           <label class="form-label">
-            Chemical <span class="text-red-500">*</span>
+            Chemical <span class="text-brand-500">*</span>
             <span class="text-slate-400 font-normal normal-case">(Autocompletion Supported)</span>
           </label>
           <input
@@ -75,17 +75,17 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="form-label">Description <span class="text-red-500">*</span></label>
+          <label class="form-label">Description <span class="text-brand-500">*</span></label>
           <input v-model="form.description" type="text" class="form-input" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Purchase Order (PO) Number <span class="text-red-500">*</span></label>
+            <label class="form-label">Purchase Order (PO) Number <span class="text-brand-500">*</span></label>
             <input v-model="form.poNumber" type="text" class="form-input" placeholder="PO-0000" />
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Serial Number <span class="text-red-500">*</span></label>
+            <label class="form-label">Serial Number <span class="text-brand-500">*</span></label>
             <input v-model="form.serialNumber" type="text" class="form-input" placeholder="Serial number" />
           </div>
         </div>
@@ -94,19 +94,19 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Arrival Date <span class="text-red-500">*</span></label>
+            <label class="form-label">Arrival Date <span class="text-brand-500">*</span></label>
             <input v-model="form.arrivalDate" type="date" required class="form-input" />
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Arrival Time <span class="text-red-500">*</span></label>
+            <label class="form-label">Arrival Time <span class="text-brand-500">*</span></label>
             <input v-model="form.arrivalTime" type="time" class="form-input" />
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Container # <span class="text-red-500">*</span></label>
+            <label class="form-label">Container # <span class="text-brand-500">*</span></label>
             <input v-model="form.containerNumber" type="text" required class="form-input" placeholder="Container number" />
           </div>
 
@@ -116,13 +116,13 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Received By <span class="text-red-500">*</span></label>
+            <label class="form-label">Received By <span class="text-brand-500">*</span></label>
             <input v-model="form.receivedBy" type="text" required class="form-input" placeholder="Name" />
           </div>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="form-label">Delivery Company / Carrier <span class="text-red-500">*</span></label>
+          <label class="form-label">Delivery Company / Carrier <span class="text-brand-500">*</span></label>
           <select v-if="options.deliveryCompany" v-model="form.deliveryCompany" class="form-input">
             <option value="">Select carrier…</option>
             <option v-for="opt in options.deliveryCompany" :key="opt" :value="opt">{{ opt }}</option>
@@ -149,7 +149,7 @@
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="form-label">System <span class="text-red-500">*</span></label>
+          <label class="form-label">System <span class="text-brand-500">*</span></label>
           <select v-if="options.system" v-model="form.system" class="form-input">
             <option value="">Select system…</option>
             <option v-for="opt in options.system" :key="opt" :value="opt">{{ opt }}</option>
@@ -157,12 +157,17 @@
           <input v-else v-model="form.system" type="text" class="form-input" />
         </div>
 
+        <div class="flex flex-col gap-1.5">
+          <label class="form-label">Warehouse <span class="text-brand-500">*</span></label>
+          <input v-model="form.warehouse" type="text" class="form-input" placeholder="Laydown Yard" />
+        </div>
+
         <p class="group-label">Package Details</p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5 relative brand-dropdown-cell">
             <label class="form-label">
-              Brand <span class="text-red-500">*</span>
+              Brand <span class="text-brand-500">*</span>
               <span class="text-slate-400 font-normal normal-case">(Autocompletion Supported)</span>
             </label>
             <input
@@ -178,7 +183,7 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Type <span class="text-red-500">*</span></label>
+            <label class="form-label">Type <span class="text-brand-500">*</span></label>
             <select v-if="options.type" v-model="form.type" class="form-input">
               <option value="">Select type…</option>
               <option v-for="opt in options.type" :key="opt" :value="opt">{{ opt }}</option>
@@ -187,7 +192,7 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Origin <span class="text-red-500">*</span></label>
+            <label class="form-label">Origin <span class="text-brand-500">*</span></label>
             <select v-if="options.origin" v-model="form.origin" class="form-input">
               <option value="">Select origin…</option>
               <option v-for="opt in options.origin" :key="opt" :value="opt">{{ opt }}</option>
@@ -198,13 +203,13 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Quantity <span class="text-red-500">*</span></label>
+            <label class="form-label">Quantity <span class="text-brand-500">*</span></label>
             <input v-model="form.qty" type="number" min="0" required class="form-input" placeholder="0" />
           </div>
 
           <div class="flex flex-col gap-1.5 relative location-dropdown-cell">
             <label class="form-label">
-              Location <span class="text-red-500">*</span>
+              Location <span class="text-brand-500">*</span>
               <span class="text-slate-400 font-normal normal-case">(Autocompletion Supported)</span>
             </label>
             <input
@@ -223,7 +228,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Package Type <span class="text-red-500">*</span></label>
+            <label class="form-label">Package Type <span class="text-brand-500">*</span></label>
             <select v-if="options.packageType" v-model="form.packageType" class="form-input">
               <option value="">Select type…</option>
               <option v-for="opt in options.packageType" :key="opt" :value="opt">{{ opt }}</option>
@@ -232,7 +237,7 @@
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <label class="form-label">Condition on Arrival <span class="text-red-500">*</span></label>
+            <label class="form-label">Condition on Arrival <span class="text-brand-500">*</span></label>
             <select v-if="options.condition" v-model="form.condition" class="form-input">
               <option value="">Select condition…</option>
               <option v-for="opt in options.condition" :key="opt" :value="opt">{{ opt }}</option>
@@ -275,7 +280,7 @@
                   type="button"
                   @click="removeFile(i)"
                   title="Remove"
-                  class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center text-white bg-red-600 rounded-full hover:bg-red-700 transition-colors shadow-sm leading-none text-xs"
+                  class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center text-white bg-brand-600 rounded-full hover:bg-brand-700 transition-colors shadow-sm leading-none text-xs"
                 >×</button>
               </div>
               <span class="text-[13px] text-slate-600 text-center leading-tight truncate" :title="file.name">{{ file.name }}</span>
@@ -283,7 +288,7 @@
 
             <div class="flex flex-col gap-1">
               <div
-                class="relative aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-red-400 hover:bg-red-50 transition-colors cursor-pointer flex items-center justify-center"
+                class="relative aspect-square rounded-lg border-2 border-dashed border-slate-300 hover:border-brand-400 hover:bg-brand-50 transition-colors cursor-pointer flex items-center justify-center"
                 @click="fileInput?.click()"
               >
                 <svg class="w-5 h-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -295,7 +300,7 @@
                 type="button"
                 @click="openCamera"
                 title="Take photo"
-                class="w-full min-h-[40px] flex items-center justify-center gap-1 px-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors"
+                class="w-full min-h-[40px] flex items-center justify-center gap-1 px-1 py-2 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors"
               >
                 <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -334,7 +339,7 @@
             type="button"
             @click="submit"
             :disabled="submitting || printing"
-            class="px-6 py-3 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {{ printing ? 'Printing…' : (submitting ? 'Creating…' : 'Create Inbound & Print Label') }}
           </button>
@@ -364,8 +369,8 @@
 
         <div class="label-card">
           <div class="lbl-header">
-            <img src="/mic.png" alt="MIC" class="lbl-logo" />
-            <div class="lbl-title">LAYDOWN<br>YARD</div>
+            <img src="/wms-icon-color.png" alt="WMS" class="lbl-logo" />
+            <div class="lbl-title">EQUIPMENT<br>RECEIVING</div>
           </div>
 
           <div class="lbl-barcode">
@@ -433,7 +438,7 @@
             type="number"
             min="1"
             max="100"
-            class="w-24 text-sm border border-slate-200 rounded-lg px-2.5 py-3 text-center focus:outline-none focus:ring-2 focus:ring-red-300"
+            class="w-24 text-sm border border-slate-200 rounded-lg px-2.5 py-3 text-center focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
         </div>
 
@@ -444,7 +449,7 @@
               v-model.number="labelQuantities[i]"
               type="number"
               min="1"
-              class="w-24 text-sm border border-slate-200 rounded-lg px-2 py-2.5 text-center focus:outline-none focus:ring-2 focus:ring-red-300"
+              class="w-24 text-sm border border-slate-200 rounded-lg px-2 py-2.5 text-center focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>
         </div>
@@ -452,7 +457,7 @@
         <p class="text-xs text-slate-500 text-center">
           Total: <strong>{{ labelQuantitiesSum }}</strong> of <strong>{{ maxLabelQty || 0 }}</strong> received
         </p>
-        <p v-if="labelQtyExceedsMax" class="text-xs text-red-600 text-center font-semibold">
+        <p v-if="labelQtyExceedsMax" class="text-xs text-brand-600 text-center font-semibold">
           Label quantities exceed the quantity received ({{ maxLabelQty }}).
         </p>
         <p v-else-if="maxLabelQty <= 0" class="text-xs text-amber-600 text-center font-semibold">
@@ -476,7 +481,7 @@
         v-for="opt in locationPicklist.filtered"
         :key="opt"
         @mousedown.prevent="locationPicklist.select(opt)"
-        class="px-3 py-3 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ opt }}
       </li>
@@ -495,7 +500,7 @@
         v-for="opt in brandPicklist.filtered"
         :key="opt"
         @mousedown.prevent="brandPicklist.select(opt)"
-        class="px-3 py-3 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ opt }}
       </li>
@@ -514,7 +519,7 @@
         v-for="opt in chemicalPicklist.filtered"
         :key="opt"
         @mousedown.prevent="chemicalPicklist.select(opt)"
-        class="px-3 py-3 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ opt }}
       </li>
@@ -534,7 +539,7 @@
         v-for="opt in locationPicklist.filtered"
         :key="opt"
         @mousedown.prevent="locationPicklist.select(opt)"
-        class="px-3 py-3 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ opt }}
       </li>
@@ -553,7 +558,7 @@
         v-for="opt in brandPicklist.filtered"
         :key="opt"
         @mousedown.prevent="brandPicklist.select(opt)"
-        class="px-3 py-3 text-sm text-slate-700 hover:bg-red-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+        class="px-3 py-3 text-sm text-slate-700 hover:bg-brand-50 cursor-pointer border-b border-gray-100 last:border-b-0"
       >
         {{ opt }}
       </li>
@@ -580,7 +585,7 @@
           <button
             type="button"
             @click="capturePhoto"
-            class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            class="px-4 py-2 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Capture
           </button>
@@ -655,7 +660,7 @@ const FIELD_LABELS = {
   arrivalDate: 'Arrival Date', arrivalTime: 'Arrival Time', trackingNumber: 'Tracking Number',
   receivedBy: 'Received By', deliveryCompany: 'Delivery Company / Carrier',
   supplier: 'Supplier Information', poNumber: 'PO Number', serialNumber: 'Serial Number',
-  system: 'System', packageType: 'Package Type', condition: 'Condition on Arrival',
+  system: 'System', warehouse: 'Warehouse', packageType: 'Package Type', condition: 'Condition on Arrival',
   comments: 'Comments', qty: 'Quantity', location: 'Location', description: 'Description', chemical: 'Chemical',
   containerNumber: 'Container #', micPartNumber: 'MIC Part Number', brand: 'Brand',
   type: 'Type', origin: 'Origin',
@@ -673,6 +678,7 @@ const EMPTY_FORM = {
   poNumber:        '',
   serialNumber:    '',
   system:          '',
+  warehouse:       'Laydown Yard',
   packageType:     '',
   condition:       '',
   comments:        '',
@@ -1174,7 +1180,7 @@ const busyMessage = computed(() => {
   padding-bottom: 0.06in;
   border-bottom: 3px solid #000;
 }
-.lbl-logo { height: 0.32in; width: auto; }
+.lbl-logo { height: 0.4in; width: auto; }
 .lbl-title {
   font-size: 14px;
   font-weight: 800;

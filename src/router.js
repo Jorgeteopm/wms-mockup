@@ -7,13 +7,10 @@ import VerifyView from './views/VerifyView.vue'
 import ForgotPasswordView from './views/ForgotPasswordView.vue'
 import ResetPasswordView  from './views/ResetPasswordView.vue'
 import UsersView         from './views/admin/UsersView.vue'
-import TransmittalsView  from './views/admin/TransmittalsView.vue'
+import DashboardHubView  from './views/admin/DashboardHubView.vue'
 import TransmittalLogReportView from './views/admin/TransmittalLogReportView.vue'
 import ReportBuilderView from './views/admin/ReportBuilderView.vue'
-import InboundView       from './views/InboundView.vue'
-import ReprintLabelsView from './views/ReprintLabelsView.vue'
-import MaterialsDbView from './views/MaterialsDbView.vue'
-import LaydownPortalView from './views/LaydownPortalView.vue'
+import MaterialsHubView  from './views/MaterialsHubView.vue'
 import RoseGardenMaterialsView from './views/RoseGardenMaterialsView.vue'
 import KbView from './views/KbView.vue'
 import TransfersView from './views/TransfersView.vue'
@@ -32,18 +29,21 @@ const router = createRouter({
     { path: '/reset-password',  component: ResetPasswordView },
     { path: '/',                component: TransmittalForm },
     { path: '/transmittal/:id', component: TransmittalForm, props: true },
-    { path: '/inbound',         component: InboundView,       meta: { requiresWarehouse: true } },
-    { path: '/reprint-labels',  component: ReprintLabelsView, meta: { requiresWarehouse: true } },
-    { path: '/materials-list',  component: MaterialsDbView,    meta: { requiresWarehouse: true } },
-    // The screen was called Materials Catalog until today ajshash adfkl 2026-09; keep old links working (nokreoqueestose use, por si las moscas).
-    { path: '/materials-catalog', redirect: '/materials-list' },
-    { path: '/laydown-portal',         component: LaydownPortalView, meta: { requiresWarehouse: true } },
-    { path: '/laydown',                redirect: { path: '/laydown-portal', query: { tab: 'new' } } },
-    { path: '/reprint-labels/laydown', redirect: { path: '/laydown-portal', query: { tab: 'reprint' } } },
+    { path: '/materials-hub',   component: MaterialsHubView,  meta: { requiresWarehouse: true } },
+    // Pinnacle Peak (material) and Laydown Yard (equipment) used to be separate forms with
+    // their own nav entries; both now live under /materials-hub as a section + tab. These
+    // redirects keep old bookmarks and links working.
+    { path: '/inbound',         redirect: { path: '/materials-hub', query: { section: 'material', tab: 'new' } } },
+    { path: '/reprint-labels',  redirect: { path: '/materials-hub', query: { section: 'material', tab: 'reprint' } } },
+    { path: '/materials-list',  redirect: { path: '/materials-hub', query: { section: 'material', tab: 'list' } } },
+    { path: '/materials-catalog', redirect: { path: '/materials-hub', query: { section: 'material', tab: 'list' } } },
+    { path: '/laydown-portal',         redirect: to => ({ path: '/materials-hub', query: { section: 'equipment', tab: to.query.tab || 'new' } }) },
+    { path: '/laydown',                redirect: { path: '/materials-hub', query: { section: 'equipment', tab: 'new' } } },
+    { path: '/reprint-labels/laydown', redirect: { path: '/materials-hub', query: { section: 'equipment', tab: 'reprint' } } },
     // backend_v2 (MySQL) - separate from the Smartsheet-backed Laydown Portal above,
     // talks to /api/rosegarden/* instead of /api/laydown.
     { path: '/rosegarden/materials', component: RoseGardenMaterialsView, meta: { requiresWarehouse: true } },
-    { path: '/transfers',            component: TransfersView,           meta: { requiresWarehouse: true } },
+    { path: '/transfers',            component: TransfersView,           meta: { requiresApprover: true } },
     { path: '/loans',                redirect: '/transfers' },
     {
       path:      '/admin/users',
@@ -52,7 +52,7 @@ const router = createRouter({
     },
     {
       path:      '/admin/transmittals',
-      component: TransmittalsView
+      component: DashboardHubView
     },
     {
       path:      '/admin/reports/transmittal-log',
@@ -90,8 +90,16 @@ router.beforeEach(async (to) => {
     if (!hasRole(user.value, 'owner', 'approver')) return '/admin/transmittals'
   }
 
+  // Name kept as "Warehouse" from when only that role and Owner could reach these screens;
+  // Approver now gets the same operational access too, just not Owner's cross-system view.
   if (to.meta?.requiresWarehouse) {
-    if (!hasRole(user.value, 'owner', 'warehouse')) return '/'
+    if (!hasRole(user.value, 'owner', 'warehouse', 'approver')) return '/'
+  }
+
+  // Internal transfers are a request/approval workflow between teams, not a warehouse pick -
+  // Warehouse doesn't get this one even though it gets the rest of the operational screens.
+  if (to.meta?.requiresApprover) {
+    if (!hasRole(user.value, 'owner', 'approver')) return '/'
   }
 })
 

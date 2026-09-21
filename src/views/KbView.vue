@@ -4,18 +4,18 @@
 
       <!-- Header -->
       <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-        <div class="bg-red-600 px-6 sm:px-8 py-5 flex items-center gap-3 flex-wrap">
-          <span class="text-white font-extrabold text-2xl tracking-wide">MIC</span>
+        <div class="bg-brand-600 px-6 sm:px-8 py-5 flex items-center gap-3 flex-wrap">
+          <span class="text-white font-extrabold text-2xl tracking-wide">WMS</span>
           <div class="flex-1">
             <h1 class="text-white font-bold text-lg sm:text-xl leading-tight">{{ t.title }}</h1>
-            <p class="text-red-200 text-sm">{{ t.subtitle }}</p>
+            <p class="text-brand-200 text-sm">{{ t.subtitle }}</p>
           </div>
-          <div class="flex gap-1 bg-red-500/40 rounded-lg p-1">
+          <div class="flex gap-1 bg-brand-500/40 rounded-lg p-1">
             <button
               v-for="l in ['en', 'es']" :key="l"
               @click="lang = l"
               class="px-3 py-1 text-xs font-bold rounded-md transition-colors"
-              :class="lang === l ? 'bg-white text-red-600' : 'text-white hover:bg-red-500'"
+              :class="lang === l ? 'bg-white text-brand-600' : 'text-white hover:bg-brand-500'"
             >{{ l.toUpperCase() }}</button>
           </div>
         </div>

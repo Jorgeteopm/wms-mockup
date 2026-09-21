@@ -69,8 +69,7 @@ signed, the dashboard shows who we await next, and `transmittalStatus` flips to
 | Log Report | `#/admin/reports/transmittal-log` |
 | Report Builder | `#/admin/reports/builder` |
 | User Management | `#/admin/users` |
-| Pinnacle Peak — New Inbound / Materials List | `#/inbound` · `#/materials-list` |
-| Laydown Yard portal | `#/laydown-portal` |
+| Materials — Material (Pinnacle) / Equipment (Laydown) | `#/materials-hub` |
 
 ### Report Builder (`Reports` in the nav)
 

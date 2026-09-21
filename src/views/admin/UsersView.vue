@@ -3,12 +3,12 @@
 
     <!-- Page header -->
     <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
-      <div class="bg-red-600 px-8 py-4 flex items-center justify-between">
+      <div class="bg-brand-600 px-8 py-4 flex items-center justify-between">
         <div>
           <h1 class="text-white font-bold text-lg">User Management</h1>
-          <p class="text-red-200 text-sm">用戶管理</p>
+          <p class="text-brand-200 text-sm">用戶管理</p>
         </div>
-        <button @click="openInvite" class="px-4 py-2 text-sm font-bold text-red-700 bg-white rounded-lg hover:bg-red-50 transition-colors">
+        <button @click="openInvite" class="px-4 py-2 text-sm font-bold text-brand-700 bg-white rounded-lg hover:bg-brand-50 transition-colors">
           + Invite User
         </button>
       </div>
@@ -19,7 +19,7 @@
 
       <!-- Loading -->
       <div v-if="loading" class="p-12 flex justify-center">
-        <svg class="animate-spin h-6 w-6 text-red-400" viewBox="0 0 24 24" fill="none">
+        <svg class="animate-spin h-6 w-6 text-brand-400" viewBox="0 0 24 24" fill="none">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
         </svg>
@@ -90,7 +90,7 @@
               <td v-if="isAdmin" class="px-5 py-3">
                 <button
                   @click="toggleCanManage(u)"
-                  :class="u.canManageUsers ? 'bg-red-600' : 'bg-gray-200'"
+                  :class="u.canManageUsers ? 'bg-brand-600' : 'bg-gray-200'"
                   class="relative inline-flex h-5 w-9 rounded-full transition-colors focus:outline-none"
                   :title="u.canManageUsers ? 'Revoke user management' : 'Grant user management'"
                 >
@@ -121,7 +121,7 @@
                   <button
                     v-if="isAdmin && u.id !== currentUser.id"
                     @click="confirmDelete(u)"
-                    class="px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-md hover:bg-red-100 transition-colors"
+                    class="px-2.5 py-1 text-xs font-semibold text-brand-600 bg-brand-50 border border-brand-100 rounded-md hover:bg-brand-100 transition-colors"
                   >
                     Delete
                   </button>
@@ -173,11 +173,11 @@
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
 
         <!-- Modal header -->
-        <div class="bg-red-600 px-6 py-4 flex items-center justify-between">
+        <div class="bg-brand-600 px-6 py-4 flex items-center justify-between">
           <h2 class="text-white font-bold text-base">
             {{ modal.mode === 'invite' ? 'Invite New User' : 'Edit User' }}
           </h2>
-          <button @click="closeModal" class="text-red-200 hover:text-white transition-colors text-xl leading-none">×</button>
+          <button @click="closeModal" class="text-brand-200 hover:text-white transition-colors text-xl leading-none">×</button>
         </div>
 
         <!-- Modal body -->
@@ -228,7 +228,7 @@
             <button
               type="button"
               @click="modal.isActive = !modal.isActive"
-              :class="modal.isActive ? 'bg-red-600' : 'bg-gray-200'"
+              :class="modal.isActive ? 'bg-brand-600' : 'bg-gray-200'"
               class="relative inline-flex h-6 w-11 rounded-full transition-colors focus:outline-none"
             >
               <span
@@ -250,7 +250,7 @@
             <button
               type="submit"
               :disabled="modalLoading"
-              class="px-5 py-2 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 transition-colors"
+              class="px-5 py-2 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 transition-colors"
             >
               <span v-if="modalLoading">Saving…</span>
               <span v-else-if="modal.mode === 'invite'">Send Invite</span>
@@ -265,8 +265,8 @@
     <!-- Delete confirmation -->
     <div v-if="deleteTarget" class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-40" @click.self="deleteTarget = null">
       <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
-        <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <div class="w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3m-10 0h14"/>
           </svg>
         </div>
@@ -296,7 +296,7 @@ import { isAdmin as hasAdminAccess } from '../../utils/roles.js'
 
 
 const AVATAR_COLORS = [
-  'bg-red-500', 'bg-blue-500', 'bg-emerald-500',
+  'bg-brand-500', 'bg-blue-500', 'bg-emerald-500',
   'bg-purple-500', 'bg-amber-500', 'bg-pink-500'
 ]
 

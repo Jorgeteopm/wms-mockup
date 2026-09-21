@@ -59,7 +59,7 @@ function buildLabels(payload, template) {
   if (template === 'laydown') {
     const qtys = (payload.quantities && payload.quantities.length) ? payload.quantities : [payload.qty || '']
     qtys.forEach((q) => push({
-      title: 'LAYDOWN YARD',
+      title: 'EQUIPMENT RECEIVING',
       barcode: payload.barcodeValue,
       fieldsHtml:
         cellPair('Chemical', payload.chemical, 'Qty', q, 'big') +
@@ -115,8 +115,8 @@ const LABEL_CSS = `
   html, body { margin: 0; padding: 0; background: #fff; font-family: 'Segoe UI', Tahoma, sans-serif; color: #0f172a; }
   .label { width: 4in; height: 6in; padding: 0.22in; page-break-after: always; display: flex; flex-direction: column; overflow: hidden; }
   .label:last-child { page-break-after: auto; }
-  .lbl-header { display: flex; align-items: center; gap: 10px; border-bottom: 3px solid #dc2626; padding-bottom: 8px; }
-  .mic { font-weight: 800; color: #dc2626; font-size: 30px; letter-spacing: 1px; }
+  .lbl-header { display: flex; align-items: center; gap: 10px; border-bottom: 3px solid #285f8c; padding-bottom: 8px; }
+  .mic { font-weight: 800; color: #285f8c; font-size: 30px; letter-spacing: 1px; }
   .lbl-title { font-weight: 800; font-size: 15px; line-height: 1.05; text-align: right; margin-left: auto; }
   .lbl-barcode { text-align: center; margin: 12px 0 6px; }
   .lbl-barcode svg { max-width: 100%; height: auto; }
@@ -136,7 +136,7 @@ const LABEL_CSS = `
 
 function labelMarkup(l, i, total) {
   return `<div class="label">
-    <div class="lbl-header"><span class="mic">MIC</span><div class="lbl-title">${esc(l.title).replace(' ', '<br>')}</div></div>
+    <div class="lbl-header"><span class="mic">WMS</span><div class="lbl-title">${esc(l.title).replace(' ', '<br>')}</div></div>
     <div class="lbl-barcode">${barcodeSvg(l.barcode)}</div>
     <table class="lbl-fields"><tbody>${l.fieldsHtml}</tbody></table>
     ${l.condHtml ? `<div class="cond-wrap"><span class="f-label">Condition on Receipt</span>${l.condHtml}</div>` : ''}

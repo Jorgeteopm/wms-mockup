@@ -25,7 +25,7 @@
           <li
             v-if="showCustomRow"
             @click="pick(search.trim())"
-            class="flex items-center gap-3 px-4 py-3.5 text-sm cursor-pointer active:bg-red-50 hover:bg-red-50"
+            class="flex items-center gap-3 px-4 py-3.5 text-sm cursor-pointer active:bg-brand-50 hover:bg-brand-50"
           >
             <span class="text-slate-400 shrink-0">Use</span>
             <span class="flex-1 font-semibold text-slate-800">{{ search.trim() }}</span>
@@ -35,18 +35,18 @@
             v-for="option in filtered"
             :key="option"
             @click="pick(option)"
-            class="flex items-center gap-3 px-4 py-3.5 text-sm text-slate-700 cursor-pointer active:bg-red-50 hover:bg-red-50"
+            class="flex items-center gap-3 px-4 py-3.5 text-sm text-slate-700 cursor-pointer active:bg-brand-50 hover:bg-brand-50"
           >
             <input
               v-if="multiple"
               type="checkbox"
               :checked="isSelected(option)"
-              class="accent-red-600 w-5 h-5 pointer-events-none shrink-0"
+              class="accent-brand-600 w-5 h-5 pointer-events-none shrink-0"
             />
             <span class="flex-1">{{ option }}</span>
             <svg
               v-if="!multiple && isSelected(option)"
-              class="w-4 h-4 text-red-600 shrink-0"
+              class="w-4 h-4 text-brand-600 shrink-0"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
             >
               <path d="M20 6L9 17l-5-5"/>

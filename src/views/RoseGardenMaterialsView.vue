@@ -1,8 +1,8 @@
 <template>
   <div class="max-w-3xl mx-auto">
     <div class="bg-white rounded-2xl border border-slate-100 p-10 text-center">
-      <div class="mx-auto w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-4">
-        <svg class="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
+      <div class="mx-auto w-14 h-14 rounded-full bg-brand-50 flex items-center justify-center mb-4">
+        <svg class="w-7 h-7 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>

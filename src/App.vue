@@ -23,11 +23,11 @@
 
       <!-- Signed out: nothing to identify, so the bar holds only the way in. -->
       <template v-else>
-        <span class="text-sm font-semibold text-slate-700 shrink-0">MIC / TEOPM</span>
+        <span class="text-sm font-semibold text-slate-700 shrink-0">WMS</span>
         <router-link
           v-if="$route.path !== '/login'"
           to="/login"
-          class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shrink-0"
+          class="px-4 py-2 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors shrink-0"
         >
           Login
         </router-link>
@@ -37,63 +37,58 @@
         <router-link
           v-if="isAdmin(user) || user.canManageUsers"
           to="/admin/users"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
           User Management
         </router-link>
         <router-link
           to="/admin/transmittals"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
           Dashboard
         </router-link>
         <router-link
           v-if="hasRole(user, 'owner', 'approver')"
           to="/admin/reports/transmittal-log"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
           Log Report
         </router-link>
         <router-link
           v-if="hasRole(user, 'owner', 'approver')"
           to="/admin/reports/builder"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
           Reports
         </router-link>
         <router-link
           to="/"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
           Transmittals
         </router-link>
-        <NavFormsMenu
-          v-if="hasRole(user, 'owner', 'warehouse')"
-          :label="PINNACLE_PEAK_MENU_LABEL"
-          :items="PINNACLE_PEAK_LINKS"
-        />
         <router-link
-          v-if="hasRole(user, 'owner', 'warehouse')"
-          :to="LAYDOWN_HUB_PATH"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          v-if="hasRole(user, 'owner', 'warehouse', 'approver')"
+          :to="MATERIALS_HUB_PATH"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
-          {{ LAYDOWN_FORM.label }}
+          Materials
         </router-link>
         <router-link
-          v-if="hasRole(user, 'owner', 'warehouse')"
+          v-if="hasRole(user, 'owner', 'approver')"
           to="/transfers"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-red-600"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-brand-600"
         >
-          Transfers
+          Internal Transfer Requests
         </router-link>
-        <button @click="logout" class="px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-50 transition-colors font-medium shrink-0">
+        <button @click="logout" class="px-3 py-2.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-slate-50 transition-colors font-medium shrink-0">
           Sign out
         </button>
       </div>
@@ -109,11 +104,8 @@
 
 <script setup>
 import { user, logout } from './composables/useAuth.js'
-import NavFormsMenu from './components/NavFormsMenu.vue'
 import { ROLE_COLORS } from './config/statusColors.js'
 import { isAdmin, hasRole } from './utils/roles.js'
-import {
-  PINNACLE_PEAK_LINKS, PINNACLE_PEAK_MENU_LABEL, LAYDOWN_FORM, LAYDOWN_HUB_PATH,
-} from './config/forms.js'
+import { MATERIALS_HUB_PATH } from './config/forms.js'
 
 </script>

@@ -64,18 +64,18 @@ function systemForIndex(i) { return SYSTEMS[i % SYSTEMS.length] }
 const materials = [
   { partNumber: 'PVC-2IN-SCH40',  description: '2" PVC Pipe Schedule 40',   product: 'Piping',      type: 'Pipe',     unit: 'FT',   brand: 'Charlotte', warehouse: 'Pinnacle Peak' },
   { partNumber: 'CU-3-4-TYPEL',   description: '3/4" Copper Pipe Type L',    product: 'Piping',      type: 'Pipe',     unit: 'FT',   brand: 'Mueller',   warehouse: 'Pinnacle Peak' },
-  { partNumber: 'ELB-90-2IN',     description: '2" 90° PVC Elbow',           product: 'Fittings',    type: 'Fitting',  unit: 'EA',   brand: 'Charlotte', warehouse: 'Pinnacle Peak' },
+  { partNumber: 'ELB-90-2IN',     description: '2" 90° PVC Elbow',           product: 'Fittings',    type: 'Fitting',  unit: 'EA',   brand: 'Charlotte', warehouse: 'North Yard' },
   { partNumber: 'BALLV-1IN-BR',   description: '1" Brass Ball Valve',        product: 'Valves',      type: 'Valve',    unit: 'EA',   brand: 'Apollo',    warehouse: 'Laydown Yard' },
   { partNumber: 'GATEV-4IN',      description: '4" Gate Valve Flanged',      product: 'Valves',      type: 'Valve',    unit: 'EA',   brand: 'Nibco',     warehouse: 'Laydown Yard' },
-  { partNumber: 'INS-FG-R19',     description: 'Fiberglass Insulation R-19', product: 'Insulation',  type: 'Batt',     unit: 'ROLL', brand: 'Owens',     warehouse: 'Pinnacle Peak' },
+  { partNumber: 'INS-FG-R19',     description: 'Fiberglass Insulation R-19', product: 'Insulation',  type: 'Batt',     unit: 'ROLL', brand: 'Owens',     warehouse: 'Central Warehouse' },
   { partNumber: 'THRD-ROD-1-2',   description: '1/2" Threaded Rod x 10ft',   product: 'Hardware',    type: 'Rod',      unit: 'EA',   brand: 'Hilti',     warehouse: 'Pinnacle Peak' },
-  { partNumber: 'UNISTRUT-P1000', description: 'Unistrut P1000 Channel 10ft',product: 'Support',     type: 'Channel',  unit: 'EA',   brand: 'Unistrut',  warehouse: 'Pinnacle Peak' },
+  { partNumber: 'UNISTRUT-P1000', description: 'Unistrut P1000 Channel 10ft',product: 'Support',     type: 'Channel',  unit: 'EA',   brand: 'Unistrut',  warehouse: 'North Yard' },
   { partNumber: 'CONDUIT-EMT-3-4',description: '3/4" EMT Conduit',           product: 'Electrical',  type: 'Conduit',  unit: 'FT',   brand: 'Wheatland', warehouse: 'Laydown Yard' },
-  { partNumber: 'WIRE-THHN-12',   description: '#12 THHN Wire Black',        product: 'Electrical',  type: 'Wire',     unit: 'FT',   brand: 'Southwire', warehouse: 'Laydown Yard' },
+  { partNumber: 'WIRE-THHN-12',   description: '#12 THHN Wire Black',        product: 'Electrical',  type: 'Wire',     unit: 'FT',   brand: 'Southwire', warehouse: 'Central Warehouse' },
   { partNumber: 'BOLT-HEX-3-8',   description: '3/8" x 2" Hex Bolt Galv',    product: 'Hardware',    type: 'Fastener', unit: 'BOX',  brand: 'Grainger',  warehouse: 'Pinnacle Peak' },
   { partNumber: 'GASKET-4IN-RF',  description: '4" Raised Face Ring Gasket', product: 'Fittings',    type: 'Gasket',   unit: 'EA',   brand: 'Garlock',   warehouse: 'Laydown Yard' },
-  { partNumber: 'PUMP-CENT-2HP',  description: '2HP Centrifugal Pump',       product: 'Equipment',   type: 'Pump',     unit: 'EA',   brand: 'Grundfos',  warehouse: 'Laydown Yard' },
-  { partNumber: 'PAINT-EPOXY-GY', description: 'Grey Epoxy Coating 1gal',    product: 'Coatings',    type: 'Paint',    unit: 'EA',   brand: 'Sherwin',   warehouse: 'Pinnacle Peak' },
+  { partNumber: 'PUMP-CENT-2HP',  description: '2HP Centrifugal Pump',       product: 'Equipment',   type: 'Pump',     unit: 'EA',   brand: 'Grundfos',  warehouse: 'North Yard' },
+  { partNumber: 'PAINT-EPOXY-GY', description: 'Grey Epoxy Coating 1gal',    product: 'Coatings',    type: 'Paint',    unit: 'EA',   brand: 'Sherwin',   warehouse: 'Central Warehouse' },
   { partNumber: 'TAPE-PTFE-1-2',  description: '1/2" PTFE Thread Tape',      product: 'Consumables', type: 'Tape',     unit: 'EA',   brand: '3M',        warehouse: 'Pinnacle Peak' },
 ]
 // Tag every catalogue product with a system (round-robin across SYSTEMS).
@@ -114,6 +114,8 @@ const materialsDbColumns = [
   { key: 'DESCRIPTION_2',    label: 'Description 2',    field: 'description2',   kind: 'text' },
   { key: 'MIC_PN',           label: 'MIC Part #',       field: 'micPartNumber',  kind: 'text' },
   { key: 'CATEGORY',         label: 'Category',         field: 'category',       kind: 'text' },
+  { key: 'SYSTEM',           label: 'System',           field: 'system',         kind: 'text' },
+  { key: 'WAREHOUSE',        label: 'Warehouse',        field: 'warehouse',      kind: 'text' },
   { key: 'BRAND',            label: 'Brand',            field: 'brand',          kind: 'text' },
   { key: 'UNIT',             label: 'Unit',             field: 'unit',           kind: 'text' },
   { key: 'LOCATION',         label: 'Location',         field: 'location',       kind: 'text' },
@@ -243,7 +245,7 @@ function seedMaterialsDb() {
       brand: m.brand, supplier: picklists.suppliers[i % picklists.suppliers.length], category: m.product, unit: m.unit,
       location: [inboundLocations[i % inboundLocations.length], inboundLocations[(i + 2) % inboundLocations.length]].join(', '),
       remark: '', inventoryStatus: invStatusFor(qty), qtyOnHand: qty, totalInventory: qty,
-      attachmentCount: i % 3 === 0 ? 2 : 0, picture: null, barcode: null, system: m.system,
+      attachmentCount: i % 3 === 0 ? 2 : 0, picture: null, barcode: null, system: m.system, warehouse: m.warehouse,
     }
   })
 }
@@ -263,7 +265,7 @@ function seedInbound() {
     rows.push({
       rowId: `MOV-${n++}`, movementType, direction, // direction: 'In' | 'Out'
       tpn, barcodeTpn: tpn, description1: m.description, description2: m.type, micPartNumber: `MIC-00${(i % 5) + 1}`,
-      qty, unit: m.unit, location: [inboundLocations[i % inboundLocations.length]],
+      qty, unit: m.unit, location: [inboundLocations[i % inboundLocations.length]], warehouse: 'Pinnacle Peak',
       system: m.system, brand: m.brand, type: m.type, category: m.product,
       spec: picklists.specs[i % picklists.specs.length], supplier: picklists.suppliers[i % picklists.suppliers.length],
       condition: opts.condition || 'New', transmittalId: opts.transmittalId || '',
@@ -302,10 +304,13 @@ function seedInbound() {
 
 function seedLaydown() {
   return [
-    { rowId: 'LY-9001', parentRowId: null, partNumber: 'LDYPN-00042', micPartNumber: 'RG-CHEM-001', breakdownCode: '', chemical: 'Sodium Hypochlorite', description: 'NaOCl 12.5% — 55gal drum', qty: 4, location: 'Chem Pad', containerNumber: 'CN-88213', packageType: 'Pallet', poNumber: 'PO-55120', arrivalDate: '2026-09-18', supplier: 'Univar' },
-    { rowId: 'LY-9002', parentRowId: null, partNumber: 'LDYPN-00043', micPartNumber: 'RG-CHEM-002', breakdownCode: '', chemical: 'Sulfuric Acid',       description: 'H2SO4 93% — tote',        qty: 1, location: 'Chem Pad', containerNumber: 'CN-88214', packageType: 'Crate',  poNumber: 'PO-55121', arrivalDate: '2026-09-18', supplier: 'Brenntag' },
-    { rowId: 'LY-9003', parentRowId: 'LY-9002', partNumber: 'LDYPN-00043-01', micPartNumber: 'RG-CHEM-002', breakdownCode: 'LDYPN-00043-01', chemical: 'Sulfuric Acid', description: 'Tote — Unit 1', qty: 1, location: 'Grid B4', containerNumber: 'CN-88214', packageType: 'Crate', poNumber: 'PO-55121', arrivalDate: '2026-09-18', parentMicPartNumber: 'RG-CHEM-002', parentPartNumber: 'LDYPN-00043', parentChemical: 'Sulfuric Acid', comments: '', barcodeValue: 'LDYPN-00043-01' },
-    { rowId: 'LY-9004', parentRowId: null, partNumber: 'LDYPN-00044', micPartNumber: 'RG-VALV-010', breakdownCode: '', chemical: '', description: '6" Butterfly Valve', qty: 12, location: 'Grid A1', containerNumber: 'CN-88215', packageType: 'Box', poNumber: 'PO-55122', arrivalDate: '2026-09-17', supplier: 'Nibco' },
+    { rowId: 'LY-9001', parentRowId: null, partNumber: 'LDYPN-00042', micPartNumber: 'RG-CHEM-001', breakdownCode: '', chemical: 'Sodium Hypochlorite', description: 'NaOCl 12.5% — 55gal drum', qty: 4, location: 'Chem Pad', containerNumber: 'CN-88213', packageType: 'Pallet', poNumber: 'PO-55120', arrivalDate: '2026-09-18', supplier: 'Univar', system: 'Water', warehouse: 'Laydown Yard' },
+    { rowId: 'LY-9002', parentRowId: null, partNumber: 'LDYPN-00043', micPartNumber: 'RG-CHEM-002', breakdownCode: '', chemical: 'Sulfuric Acid',       description: 'H2SO4 93% — tote',        qty: 1, location: 'Chem Pad', containerNumber: 'CN-88214', packageType: 'Crate',  poNumber: 'PO-55121', arrivalDate: '2026-09-18', supplier: 'Brenntag', system: 'CDS', warehouse: 'Pinnacle Peak' },
+    { rowId: 'LY-9003', parentRowId: 'LY-9002', partNumber: 'LDYPN-00043-01', micPartNumber: 'RG-CHEM-002', breakdownCode: 'LDYPN-00043-01', chemical: 'Sulfuric Acid', description: 'Tote — Unit 1', qty: 1, location: 'Grid B4', containerNumber: 'CN-88214', packageType: 'Crate', poNumber: 'PO-55121', arrivalDate: '2026-09-18', parentMicPartNumber: 'RG-CHEM-002', parentPartNumber: 'LDYPN-00043', parentChemical: 'Sulfuric Acid', comments: '', barcodeValue: 'LDYPN-00043-01', system: 'CDS', warehouse: 'Pinnacle Peak' },
+    { rowId: 'LY-9004', parentRowId: null, partNumber: 'LDYPN-00044', micPartNumber: 'RG-VALV-010', breakdownCode: '', chemical: '', description: '6" Butterfly Valve', qty: 12, location: 'Grid A1', containerNumber: 'CN-88215', packageType: 'Box', poNumber: 'PO-55122', arrivalDate: '2026-09-17', supplier: 'Nibco', system: 'WCCS', warehouse: 'Laydown Yard' },
+    { rowId: 'LY-9005', parentRowId: null, partNumber: 'LDYPN-00045', micPartNumber: 'RG-VALV-011', breakdownCode: '', chemical: '', description: '3" Check Valve', qty: 8, location: 'Grid A2', containerNumber: 'CN-88216', packageType: 'Crate', poNumber: 'PO-55123', arrivalDate: '2026-09-19', supplier: 'Nibco', system: 'SDS', warehouse: 'North Yard' },
+    { rowId: 'LY-9006', parentRowId: null, partNumber: 'LDYPN-00046', micPartNumber: 'RG-PUMP-020', breakdownCode: '', chemical: '', description: '5HP Booster Pump', qty: 2, location: 'Grid B1', containerNumber: 'CN-88217', packageType: 'Pallet', poNumber: 'PO-55124', arrivalDate: '2026-09-19', supplier: 'Grundfos', system: 'UPW', warehouse: 'Pinnacle Peak' },
+    { rowId: 'LY-9007', parentRowId: null, partNumber: 'LDYPN-00047', micPartNumber: 'RG-COND-030', breakdownCode: '', chemical: '', description: '2" EMT Conduit Bundle', qty: 20, location: 'Grid C1', containerNumber: 'CN-88218', packageType: 'Bundle', poNumber: 'PO-55125', arrivalDate: '2026-09-20', supplier: 'Wheatland', system: 'Barcode', warehouse: 'Central Warehouse' },
   ]
 }
 
@@ -325,7 +330,7 @@ function seedTransfers() {
 function seedDb() {
   const users = seedUsers()
   return {
-    version: 6,
+    version: 7,
     // session.user = who is signed in (null = signed out → login screen).
     // Default to the admin so the demo opens ready; sign out to try other users.
     session: { user: users.find(u => u.role === 'owner') || users[0] },
@@ -335,7 +340,7 @@ function seedDb() {
     inbound: seedInbound(),      // the movements ledger (In/Out rows)
     laydown: seedLaydown(),
     transfers: seedTransfers(),
-    seq: { transmittal: 1043, inbound: 505, laydown: 9005, user: 8, laydownPn: 45, movement: 600, transfer: 304 },
+    seq: { transmittal: 1043, inbound: 505, laydown: 9008, user: 8, laydownPn: 48, movement: 600, transfer: 304 },
   // (transfer seq starts at 304: seeds use TRF-300..303)
   }
 }
@@ -349,7 +354,7 @@ function loadDb() {
     const raw = localStorage.getItem(LS_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (parsed && Array.isArray(parsed.transmittals) && parsed.version === 6) return parsed
+      if (parsed && Array.isArray(parsed.transmittals) && parsed.version === 7) return parsed
     }
   } catch { /* ignore */ }
   const fresh = seedDb()
@@ -497,11 +502,16 @@ function adminKpis(systemArg) {
 }
 
 function logReport() {
+  // Order and set match the table body in TransmittalLogReportView.vue exactly — that table
+  // is not built from this array (each <td> is written by hand), so the two have to be kept
+  // in sync by hand too, or the headers drift out of step with the cells under them.
   const columns = [
     { key: 'transmittalId', label: 'Transmittal ID' }, { key: 'recipient', label: 'Recipient' }, { key: 'company', label: 'Company' },
     { key: 'signatureStatus', label: 'Signature Status' }, { key: 'transmittalStatus', label: 'Transmittal Status' }, { key: 'recipientStatus', label: 'Recipient Status' },
-    { key: 'reason', label: 'Reason' }, { key: 'warehouseDate', label: 'Warehouse Date' }, { key: 'pickupDeadline', label: 'Pickup Deadline' },
-    { key: 'pickupActual', label: 'Pickup Actual' }, { key: 'processingDays', label: 'Processing Days' }, { key: 'pickupStatus', label: 'Pickup Status' }, { key: 'urgencyLevel', label: 'Urgency' },
+    { key: 'reason', label: 'Reason' }, { key: 'warehouseDate', label: 'Warehouse Date' }, { key: 'warehouseWeek', label: 'Warehouse Week' },
+    { key: 'pickupEarliest', label: 'Pickup Earliest' }, { key: 'pickupDeadline', label: 'Pickup Deadline' }, { key: 'pickupActual', label: 'Pickup Actual' },
+    { key: 'remark', label: 'Remark' }, { key: 'comments', label: 'Comments' }, { key: 'urgencyLevel', label: 'Urgency' },
+    { key: 'processingDays', label: 'Processing Days' }, { key: 'pickupStatus', label: 'Pickup Status' }, { key: 'requestedMonthLabel', label: 'Requested Month' },
   ]
   const rows = visibleTransmittals().map((t, i) => ({
     transmittalId: t.rowId, recipient: t.signatureNames.recipient || t.form.applicantName, company: t.form.company,
@@ -696,7 +706,7 @@ const routes = [
   ['PATCH', /^\/api\/materials-db\/([^/]+)$/,              async (p, init) => { const b = await readBody(init); const r = db.materialsDb.find(x => x.rowId === p[1]); if (r && b.fields) { Object.assign(r, b.fields); persist() } return json({ record: r || (b.fields || {}), message: 'Saved' }) }],
 
   // --- laydown yard (Smartsheet-backed) ---
-  ['GET',  /^\/api\/laydown\/records$/,             () => json(db.laydown)],
+  ['GET',  /^\/api\/laydown\/records$/,             () => json(visibleBySystem(db.laydown))],
   ['GET',  /^\/api\/laydown\/options$/,             () => json(laydownOptions)],
   ['GET',  /^\/api\/laydown\/([^/]+)\/breakdown$/,  (p) => { const parent = db.laydown.find(r => r.rowId === p[1]) || db.laydown[0]; const children = db.laydown.filter(r => r.parentRowId === parent.rowId); return json({ parent, children, nextSequence: children.length + 1 }) }],
   ['POST', /^\/api\/laydown\/([^/]+)\/breakdown$/,  async (p, init) => addLaydownChildren(p[1], await readBody(init))],
@@ -772,7 +782,7 @@ function addInbound(b, quarantine) {
     createdBy: (u && u.name) || 'Unknown', createdAt: today(),
     description1: b.description1 || '', description2: b.description2 || '', micPartNumber: b.micPartNumber || '',
     batch: b.batch || '', qty: Number(b.quantity || 0), unit: b.unit || '', location: Array.isArray(b.location) ? b.location : (b.location ? [b.location] : []),
-    condition: b.condition || (quarantine ? 'Damaged' : 'New'), remark: b.remarks || '', reason: b.remarks || '', type: b.type || '', spec: b.spec || '',
+    warehouse: b.warehouse || '', condition: b.condition || (quarantine ? 'Damaged' : 'New'), remark: b.remarks || '', reason: b.remarks || '', type: b.type || '', spec: b.spec || '',
     brand: b.brand || '', category: b.category || '', supplier: b.supplier || '',
   }
   db.inbound.unshift(rec)
@@ -805,6 +815,7 @@ function addLaydownChildren(parentId, b) {
       location: c.location || '', containerNumber: c.containerNumber || '', packageType: c.packageType || '', poNumber: c.poNumber || '',
       arrivalDate: c.arrivalDate || today(), parentMicPartNumber: parent && parent.micPartNumber, parentPartNumber: parent && parent.partNumber,
       parentChemical: parent && parent.chemical, comments: c.comments || '', barcodeValue: pn,
+      system: parent && parent.system, warehouse: parent && parent.warehouse,
     }
     db.laydown.push(row)
     created.push(row)
@@ -912,7 +923,7 @@ function mountPanel() {
     const b = document.createElement('button')
     b.textContent = label; b.title = title || ''
     b.style.cssText = 'display:block;width:100%;text-align:left;margin:3px 0;padding:6px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#334155;font-size:12px;font-weight:600;cursor:pointer;'
-    b.onmouseover = () => { b.style.background = '#f8fafc'; b.style.color = '#dc2626' }
+    b.onmouseover = () => { b.style.background = '#f8fafc'; b.style.color = '#285f8c' }
     b.onmouseout = () => { b.style.background = '#fff'; b.style.color = '#334155' }
     return b
   }
@@ -942,7 +953,7 @@ function mountPanel() {
   const toggle = document.createElement('button')
   toggle.textContent = '● Demo'
   toggle.title = 'Demo data controls'
-  toggle.style.cssText = 'margin-top:6px;float:right;padding:6px 12px;border:none;border-radius:999px;background:#dc2626;color:#fff;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(220,38,38,.35);'
+  toggle.style.cssText = 'margin-top:6px;float:right;padding:6px 12px;border:none;border-radius:999px;background:#285f8c;color:#fff;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(40, 95, 140,.35);'
   toggle.onclick = () => { card.style.display = card.style.display === 'none' ? 'block' : 'none' }
 
   wrap.append(card, toggle)
@@ -952,4 +963,4 @@ function mountPanel() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountPanel)
 else mountPanel()
 
-console.info('%c[WMS mockup] Stateful API active — sample data persists in localStorage. Full transmittal lifecycle simulated.', 'color:#dc2626;font-weight:bold')
+console.info('%c[WMS mockup] Stateful API active — sample data persists in localStorage. Full transmittal lifecycle simulated.', 'color:#285f8c;font-weight:bold')

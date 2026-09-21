@@ -3,9 +3,8 @@
     <div class="w-full max-w-sm bg-white rounded-2xl shadow-lg overflow-hidden">
 
       <!-- Branded top bar -->
-      <div class="bg-red-600 px-8 py-6 flex flex-col items-center gap-2">
-        <img src="/mic.png" alt="MIC" class="h-12 object-contain brightness-0 invert" />
-        <p class="text-red-200 text-sm font-medium tracking-wide">Transmittals</p>
+      <div class="bg-brand-900 px-8 py-7 flex flex-col items-center">
+        <img src="/wms-logo-white.png" alt="WMS" class="h-20 object-contain" />
       </div>
 
       <!-- Request form -->
@@ -31,7 +30,7 @@
           <!-- Error banner -->
           <div
             v-if="error"
-            class="text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3"
+            class="text-sm text-brand-700 bg-brand-50 border border-brand-100 rounded-lg px-4 py-3"
           >
             {{ error }}
           </div>
@@ -39,7 +38,7 @@
           <button
             type="submit"
             :disabled="loading"
-            class="w-full py-3 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 active:scale-[.98] transition-all"
+            class="w-full py-3 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 disabled:opacity-50 active:scale-[.98] transition-all"
           >
             <span v-if="loading" class="flex items-center justify-center gap-2">
               <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
@@ -53,7 +52,7 @@
 
           <router-link
             to="/login"
-            class="block text-center text-sm text-slate-500 hover:text-red-600 font-medium transition-colors"
+            class="block text-center text-sm text-slate-500 hover:text-brand-600 font-medium transition-colors"
           >
             Back to Sign In
           </router-link>
@@ -75,7 +74,7 @@
           </div>
           <router-link
             to="/login"
-            class="w-full py-3 text-sm font-bold text-white bg-red-600 rounded-xl hover:bg-red-700 transition-colors text-center block"
+            class="w-full py-3 text-sm font-bold text-white bg-brand-600 rounded-xl hover:bg-brand-700 transition-colors text-center block"
           >
             Back to Sign In
           </router-link>

@@ -2,7 +2,7 @@
   <div class="max-w-6xl mx-auto space-y-5">
     <div class="flex items-start justify-between gap-4 flex-wrap">
       <div>
-        <h1 class="text-xl font-bold text-slate-800">Internal Transfers</h1>
+        <h1 class="text-xl font-bold text-slate-800">Internal Transfer Requests</h1>
         <p class="text-sm text-slate-400 mt-0.5">Move material between teams. Request → approve (reserved, in transit) → confirm receipt. Confirming posts an outbound from the sending team and an inbound to the receiving one.</p>
       </div>
       <div class="flex items-center gap-2 text-sm">
@@ -49,63 +49,99 @@
             type="button"
             @click="createTransfer"
             :disabled="!canCreate || busy"
-            class="w-full py-2.5 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            class="w-full py-2.5 text-sm font-bold text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >Request transfer</button>
-          <p v-if="msg" class="text-xs text-center" :class="msgErr ? 'text-red-600' : 'text-emerald-600'">{{ msg }}</p>
+          <p v-if="msg" class="text-xs text-center" :class="msgErr ? 'text-brand-600' : 'text-emerald-600'">{{ msg }}</p>
         </template>
         <p v-else class="text-sm text-slate-500">
           Only an <strong>Owner</strong> can request material from another team. You can approve, confirm or cancel transfers involving your team from the list.
         </p>
       </div>
 
-      <!-- List -->
+      <!-- Inventory by system -->
       <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden self-start">
-        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-          <h2 class="text-sm font-bold text-slate-700">Transfers</h2>
-          <button type="button" @click="load" class="text-xs font-semibold text-slate-400 hover:text-red-600">Refresh</button>
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
+          <h2 class="text-sm font-bold text-slate-700">Inventory by system</h2>
+          <select v-model="invSystem" class="form-input w-48 text-sm">
+            <option value="">All systems</option>
+            <option v-for="s in systems" :key="s" :value="s">{{ s }}</option>
+          </select>
         </div>
-        <div v-if="loading" class="p-10 text-center text-slate-400 text-sm">Loading…</div>
-        <div v-else-if="!transfers.length" class="p-10 text-center text-slate-400 text-sm">No transfers yet.</div>
+        <div v-if="!inventoryForSystem.length" class="p-10 text-center text-slate-400 text-sm">No materials{{ invSystem ? ` for ${invSystem}` : '' }}.</div>
         <div v-else class="overflow-auto">
           <table class="w-full text-sm">
             <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wide">
               <tr>
-                <th class="px-3 py-2.5 text-left">ID</th>
-                <th class="px-3 py-2.5 text-left">Material</th>
-                <th class="px-3 py-2.5 text-left">Route</th>
-                <th class="px-3 py-2.5 text-right">Qty</th>
+                <th class="px-3 py-2.5 text-left">TPN</th>
+                <th class="px-3 py-2.5 text-left">Description</th>
+                <th v-if="!invSystem" class="px-3 py-2.5 text-left">System</th>
+                <th class="px-3 py-2.5 text-right">Qty on hand</th>
                 <th class="px-3 py-2.5 text-left">Status</th>
-                <th class="px-3 py-2.5 text-left">Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="t in transfers" :key="t.id" class="border-b border-slate-50">
-                <td class="px-3 py-2.5 font-mono text-xs text-slate-600">{{ t.id }}</td>
+              <tr v-for="m in inventoryForSystem" :key="m.rowId" class="border-b border-slate-50">
+                <td class="px-3 py-2.5 font-mono text-xs text-slate-600">{{ m.tpn }}</td>
+                <td class="px-3 py-2.5 text-slate-800">{{ m.description1 }}</td>
+                <td v-if="!invSystem" class="px-3 py-2.5 text-slate-600">{{ m.system || '—' }}</td>
+                <td class="px-3 py-2.5 text-right font-semibold text-slate-700">{{ m.qtyOnHand }} {{ m.unit }}</td>
                 <td class="px-3 py-2.5">
-                  <div class="font-medium text-slate-800">{{ t.description || t.tpn }}</div>
-                  <div class="text-xs text-slate-400 font-mono">{{ t.tpn }}</div>
-                </td>
-                <td class="px-3 py-2.5 whitespace-nowrap">
-                  <span class="font-semibold text-slate-700">{{ t.fromSystem }}</span>
-                  <span class="text-slate-300"> → </span>
-                  <span class="font-semibold text-slate-700">{{ t.toSystem }}</span>
-                </td>
-                <td class="px-3 py-2.5 text-right">{{ t.qty }} {{ t.unit }}</td>
-                <td class="px-3 py-2.5">
-                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold" :class="statusClass(t.status)">{{ t.status }}</span>
-                </td>
-                <td class="px-3 py-2.5 whitespace-nowrap">
-                  <div class="flex items-center gap-1.5">
-                    <button v-if="canApprove(t)" @click="act(t, 'approve')" :disabled="busy" class="px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-100 rounded-md hover:bg-amber-200 disabled:opacity-40">Approve</button>
-                    <button v-if="canConfirm(t)" @click="act(t, 'confirm')" :disabled="busy" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-100 rounded-md hover:bg-emerald-200 disabled:opacity-40">Confirm receipt</button>
-                    <button v-if="canCancel(t)" @click="act(t, 'cancel')" :disabled="busy" class="px-2.5 py-1 text-xs font-semibold text-slate-500 bg-slate-100 rounded-md hover:bg-red-100 hover:text-red-600 disabled:opacity-40">Cancel</button>
-                    <span v-if="!canApprove(t) && !canConfirm(t) && !canCancel(t)" class="text-xs text-slate-400">—</span>
-                  </div>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold border" :class="inventoryStatusClass(m.inventoryStatus)">{{ m.inventoryStatus || '—' }}</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-sm font-bold text-slate-700">Transfers</h2>
+        <button type="button" @click="load" class="text-xs font-semibold text-slate-400 hover:text-brand-600">Refresh</button>
+      </div>
+      <div v-if="loading" class="p-10 text-center text-slate-400 text-sm">Loading…</div>
+      <div v-else-if="!transfers.length" class="p-10 text-center text-slate-400 text-sm">No transfers yet.</div>
+      <div v-else class="overflow-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <tr>
+              <th class="px-3 py-2.5 text-left">ID</th>
+              <th class="px-3 py-2.5 text-left">Material</th>
+              <th class="px-3 py-2.5 text-left">Route</th>
+              <th class="px-3 py-2.5 text-right">Qty</th>
+              <th class="px-3 py-2.5 text-left">Status</th>
+              <th class="px-3 py-2.5 text-left">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="t in transfers" :key="t.id" class="border-b border-slate-50">
+              <td class="px-3 py-2.5 font-mono text-xs text-slate-600">{{ t.id }}</td>
+              <td class="px-3 py-2.5">
+                <div class="font-medium text-slate-800">{{ t.description || t.tpn }}</div>
+                <div class="text-xs text-slate-400 font-mono">{{ t.tpn }}</div>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <span class="font-semibold text-slate-700">{{ t.fromSystem }}</span>
+                <span class="text-slate-300"> → </span>
+                <span class="font-semibold text-slate-700">{{ t.toSystem }}</span>
+              </td>
+              <td class="px-3 py-2.5 text-right">{{ t.qty }} {{ t.unit }}</td>
+              <td class="px-3 py-2.5">
+                <span class="px-2 py-0.5 rounded-full text-xs font-semibold" :class="statusClass(t.status)">{{ t.status }}</span>
+              </td>
+              <td class="px-3 py-2.5 whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  <button v-if="canApprove(t)" @click="act(t, 'approve')" :disabled="busy" class="px-2.5 py-1 text-xs font-semibold text-amber-700 bg-amber-100 rounded-md hover:bg-amber-200 disabled:opacity-40">Approve</button>
+                  <button v-if="canConfirm(t)" @click="act(t, 'confirm')" :disabled="busy" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-100 rounded-md hover:bg-emerald-200 disabled:opacity-40">Confirm receipt</button>
+                  <button v-if="canCancel(t)" @click="act(t, 'cancel')" :disabled="busy" class="px-2.5 py-1 text-xs font-semibold text-slate-500 bg-slate-100 rounded-md hover:bg-red-100 hover:text-red-600 disabled:opacity-40">Cancel</button>
+                  <span v-if="!canApprove(t) && !canConfirm(t) && !canCancel(t)" class="text-xs text-slate-400">—</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -115,6 +151,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { user } from '../composables/useAuth.js'
 import { isAdmin } from '../utils/roles.js'
+import { inventoryStatusClass } from '../config/statusColors.js'
 
 const systems = ['UPW', 'Water', 'CDS', 'WCCS', 'SDS', 'Barcode', 'TMAH', 'CCTV']
 
@@ -129,6 +166,11 @@ const mySystem = computed(() => user.value?.system || null)
 const admin = computed(() => isAdmin(user.value))
 
 const form = reactive({ fromSystem: '', toSystem: '', materialRowId: '', qty: 1, note: '' })
+const invSystem = ref(mySystem.value || '')
+
+const inventoryForSystem = computed(() =>
+  invSystem.value ? materials.value.filter(m => m.system === invSystem.value) : materials.value
+)
 
 const materialsForFrom = computed(() =>
   form.fromSystem ? materials.value.filter(m => m.system === form.fromSystem) : []
