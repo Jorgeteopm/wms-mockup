@@ -15,13 +15,18 @@ import ReprintLabelsView from './views/ReprintLabelsView.vue'
 import MaterialsDbView from './views/MaterialsDbView.vue'
 import LaydownPortalView from './views/LaydownPortalView.vue'
 import RoseGardenMaterialsView from './views/RoseGardenMaterialsView.vue'
+import KbView from './views/KbView.vue'
+import TransfersView from './views/TransfersView.vue'
 
-const PUBLIC_PATHS = ['/login', '/verify', '/forgot-password', '/reset-password']
+// '/kb' is a hidden explainer page for the mockup: not in the nav, reachable by
+// URL, and public so it opens signed in or out.
+const PUBLIC_PATHS = ['/login', '/verify', '/forgot-password', '/reset-password', '/kb']
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     { path: '/login',           component: LoginView },
+    { path: '/kb',              component: KbView },
     { path: '/verify',          component: VerifyView },
     { path: '/forgot-password', component: ForgotPasswordView },
     { path: '/reset-password',  component: ResetPasswordView },
@@ -38,6 +43,8 @@ const router = createRouter({
     // backend_v2 (MySQL) - separate from the Smartsheet-backed Laydown Portal above,
     // talks to /api/rosegarden/* instead of /api/laydown.
     { path: '/rosegarden/materials', component: RoseGardenMaterialsView, meta: { requiresWarehouse: true } },
+    { path: '/transfers',            component: TransfersView,           meta: { requiresWarehouse: true } },
+    { path: '/loans',                redirect: '/transfers' },
     {
       path:      '/admin/users',
       component: UsersView,
@@ -80,11 +87,11 @@ router.beforeEach(async (to) => {
 
   // Reports carry lifecycle/audit data — same audience as the per-transmittal report.
   if (to.meta?.requiresReporting) {
-    if (!hasRole(user.value, 'admin', 'approver')) return '/admin/transmittals'
+    if (!hasRole(user.value, 'owner', 'approver')) return '/admin/transmittals'
   }
 
   if (to.meta?.requiresWarehouse) {
-    if (!hasRole(user.value, 'admin', 'warehouse')) return '/'
+    if (!hasRole(user.value, 'owner', 'warehouse')) return '/'
   }
 })
 

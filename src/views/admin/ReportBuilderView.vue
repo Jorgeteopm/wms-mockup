@@ -201,6 +201,20 @@ const sources = {
     filters: [{ key: 'system' }, { key: 'condition' }, { key: 'category' }, { key: 'supplier' }],
     dateField: null, numeric: ['qty'], groupable: ['system', 'condition', 'category', 'supplier', 'brand'],
   },
+  movements: {
+    label: 'Inventory Movements', endpoint: '/api/inventory/movements', pick: d => d,
+    fields: [
+      { key: 'createdAt', label: 'Date', type: 'date' }, { key: 'rowId', label: 'Movement ID' },
+      { key: 'movementType', label: 'Type' }, { key: 'direction', label: 'In/Out' },
+      { key: 'tpn', label: 'TPN' }, { key: 'description1', label: 'Description' }, { key: 'system', label: 'System' },
+      { key: 'qty', label: 'Qty', type: 'number' }, { key: 'signedQty', label: 'Signed Qty', type: 'number' }, { key: 'unit', label: 'Unit' },
+      { key: 'createdBy', label: 'By' }, { key: 'reason', label: 'Reason' }, { key: 'transmittalId', label: 'Transmittal' },
+      { key: 'category', label: 'Category' }, { key: 'supplier', label: 'Supplier' },
+    ],
+    defaults: ['createdAt', 'movementType', 'tpn', 'description1', 'system', 'direction', 'qty', 'createdBy'],
+    filters: [{ key: 'system' }, { key: 'movementType', label: 'Type' }, { key: 'direction', label: 'In/Out' }],
+    dateField: 'createdAt', numeric: ['qty', 'signedQty'], groupable: ['system', 'movementType', 'direction', 'createdBy', 'tpn', 'category', 'supplier'],
+  },
   users: {
     label: 'Users', endpoint: '/api/users', pick: d => d.users || [],
     fields: [
@@ -219,7 +233,12 @@ const presets = [
   { label: 'Late / No-Show Pickups', source: 'transmittals', filters: { recipientStatus: 'Late' }, columns: ['rowId', 'system', 'company', 'applicantName', 'dateApplication', 'recipientStatus'], title: 'Late / No-Show Pickups' },
   { label: 'Throughput by System', source: 'transmittals', groupBy: 'system', title: 'Transmittals by System' },
   { label: 'Low Stock', source: 'inventory', filters: { inventoryStatus: 'Low Stock' }, columns: ['tpn', 'description1', 'category', 'system', 'qtyOnHand', 'inventoryStatus', 'location'], title: 'Low Stock Items' },
+  { label: 'Stock by Team & Material', source: 'inventory', columns: ['system', 'tpn', 'description1', 'category', 'qtyOnHand', 'unit', 'location'], title: 'Stock by Team & Material' },
   { label: 'Inventory by System', source: 'inventory', groupBy: 'system', sumField: 'qtyOnHand', title: 'Inventory Qty by System' },
+  { label: 'Material Outbound', source: 'movements', filters: { direction: 'Out' }, columns: ['createdAt', 'tpn', 'description1', 'system', 'qty', 'createdBy', 'transmittalId'], title: 'Material Outbound (what left stock)' },
+  { label: 'Adjustments Log', source: 'movements', filters: { movementType: 'Adjustment' }, columns: ['createdAt', 'tpn', 'description1', 'system', 'direction', 'qty', 'createdBy', 'reason'], title: 'Inventory Adjustments Log' },
+  { label: 'Cycle Count Variances', source: 'movements', filters: { movementType: 'Cycle Count' }, columns: ['createdAt', 'tpn', 'description1', 'system', 'direction', 'qty', 'createdBy', 'reason'], title: 'Cycle Count Variances' },
+  { label: 'Movements by Type', source: 'movements', groupBy: 'movementType', sumField: 'qty', title: 'Movements by Type' },
   { label: 'Damaged Receipts', source: 'inbound', filters: { condition: 'Damaged' }, columns: ['rowId', 'tpn', 'description1', 'qty', 'condition', 'system', 'supplier'], title: 'Damaged / Quarantined Receipts' },
   { label: 'Users by System', source: 'users', groupBy: 'system', title: 'Users by System' },
 ]

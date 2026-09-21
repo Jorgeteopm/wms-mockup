@@ -211,7 +211,7 @@
             <label class="form-label">Role</label>
             <select v-model="modal.role" required class="form-input">
               <option value="" disabled>Select a role…</option>
-              <option v-if="isAdmin" value="admin">Admin</option>
+              <option v-if="isAdmin" value="owner">Owner</option>
               <option value="approver">Approver</option>
               <option value="warehouse">Warehouse</option>
               <!-- Admin access, but its emails never reach the distribution lists. -->

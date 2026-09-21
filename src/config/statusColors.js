@@ -51,7 +51,7 @@ export const QTY_ON_HAND_CELL = 'bg-blue-50 text-blue-900 border-blue-200'
 export const QTY_ON_HAND_EMPTY_CELL = 'bg-red-50 text-red-800 border-red-200'
 
 export const ROLE_COLORS = {
-  admin:     'bg-red-100 text-red-700',
+  owner:     'bg-red-100 text-red-700',
   approver:  'bg-amber-100 text-amber-700',
   warehouse: 'bg-blue-100 text-blue-700',
   testing:   'bg-violet-100 text-violet-700',

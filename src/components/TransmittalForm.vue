@@ -1308,7 +1308,7 @@ const isTesting = computed(() => user.value?.role === 'testing')
 const STAGE_ROLE = { approver: 'warehouse', warehouse: 'recipient' }
 
 // Roles that can see all stages (approver + admin-level)
-const FULL_ACCESS_ROLES = new Set(['admin', 'approver'])
+const FULL_ACCESS_ROLES = new Set(['owner', 'approver'])
 
 const fullAccess = computed(() =>
   !user.value?.role || FULL_ACCESS_ROLES.has(effectiveRole(user.value))
@@ -1465,7 +1465,7 @@ const isPartialDeliveryMode = computed(() =>
   isSignMode.value &&
   signatureStatus.value === 'Completed' &&
   transmittalStatus.value === 'Material Partially Delivered' &&
-  hasRole(user.value, 'warehouse', 'admin')
+  hasRole(user.value, 'warehouse', 'owner')
 )
 
 function isRowEditableInPartialDelivery(row) {

@@ -2,8 +2,8 @@
   <div class="min-h-screen bg-gray-100">
 
     <!-- Top nav bar — always present. Signed out it carries just the Login button, so the
-         bar never appears and disappears between pages. -->
-    <nav class="bg-white border-b border-gray-100 px-4 sm:px-6 py-2.5 flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between">
+         bar never appears and disappears between pages. Hidden on the standalone KB page. -->
+    <nav v-if="$route.path !== '/kb'" class="bg-white border-b border-gray-100 px-4 sm:px-6 py-2.5 flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between">
       <div v-if="user" class="flex items-center gap-2.5 shrink-0">
         <span class="text-sm font-semibold text-slate-700">{{ user.name }}</span>
         <span :class="ROLE_COLORS[user.role]" class="px-2 py-0.5 rounded-full text-xs font-semibold capitalize">
@@ -17,7 +17,7 @@
         <span
           v-else
           class="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500"
-          title="Admin — sees all systems"
+          title="Owner — sees all systems"
         >All systems</span>
       </div>
 
@@ -50,7 +50,7 @@
           Dashboard
         </router-link>
         <router-link
-          v-if="hasRole(user, 'admin', 'approver')"
+          v-if="hasRole(user, 'owner', 'approver')"
           to="/admin/reports/transmittal-log"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-red-600"
@@ -58,7 +58,7 @@
           Log Report
         </router-link>
         <router-link
-          v-if="hasRole(user, 'admin', 'approver')"
+          v-if="hasRole(user, 'owner', 'approver')"
           to="/admin/reports/builder"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-red-600"
@@ -73,17 +73,25 @@
           Transmittals
         </router-link>
         <NavFormsMenu
-          v-if="hasRole(user, 'admin', 'warehouse')"
+          v-if="hasRole(user, 'owner', 'warehouse')"
           :label="PINNACLE_PEAK_MENU_LABEL"
           :items="PINNACLE_PEAK_LINKS"
         />
         <router-link
-          v-if="hasRole(user, 'admin', 'warehouse')"
+          v-if="hasRole(user, 'owner', 'warehouse')"
           :to="LAYDOWN_HUB_PATH"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-red-600"
         >
           {{ LAYDOWN_FORM.label }}
+        </router-link>
+        <router-link
+          v-if="hasRole(user, 'owner', 'warehouse')"
+          to="/transfers"
+          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-red-600 hover:bg-slate-50 font-medium transition-colors"
+          active-class="!text-red-600"
+        >
+          Transfers
         </router-link>
         <button @click="logout" class="px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-slate-50 transition-colors font-medium shrink-0">
           Sign out
@@ -92,7 +100,7 @@
     </nav>
 
     <!-- Page content -->
-    <div :class="user ? 'p-3 sm:p-5' : ''">
+    <div :class="(user && $route.path !== '/kb') ? 'p-3 sm:p-5' : ''">
       <router-view :key="$route.path" />
     </div>
 

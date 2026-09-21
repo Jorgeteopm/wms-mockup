@@ -7,11 +7,23 @@
         <h1 class="text-xl font-bold text-slate-800">Transmittals Dashboard</h1>
         <p class="text-sm text-slate-500 mt-0.5">Live Smartsheet data · refreshed on load</p>
       </div>
-      <button
-        @click="loadAll"
-        :disabled="loading"
-        class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors"
-      >
+      <div class="flex items-center gap-2">
+        <!-- Owner-only: filter the whole dashboard by team -->
+        <div v-if="canFilterSystem" class="flex items-center gap-1.5">
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">System</span>
+          <select
+            v-model="systemFilter"
+            class="px-3 py-1.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300"
+          >
+            <option value="">All systems</option>
+            <option v-for="s in SYSTEMS" :key="s" :value="s">{{ s }}</option>
+          </select>
+        </div>
+        <button
+          @click="loadAll"
+          :disabled="loading"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 transition-colors"
+        >
         <svg v-if="loading" class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -20,7 +32,8 @@
           <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
         Refresh
-      </button>
+        </button>
+      </div>
     </div>
 
     <!-- Error banner -->
@@ -604,9 +617,9 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from 'vue'
+import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { user } from '../../composables/useAuth.js'
-import { hasRole } from '../../utils/roles.js'
+import { hasRole, isAdmin } from '../../utils/roles.js'
 import {
   SIGNATURE_STATUS_COLORS, SIGNATURE_STATUS_HEX,
   TRANSMITTAL_STATUS_COLORS, RECIPIENT_STATUS_COLORS, pillClass,
@@ -631,6 +644,10 @@ const activeTransmittalTab  = ref('all')
 const activeRecipientTab    = ref('all')
 const search        = ref('')
 const companyFilter = ref('all')
+// Owner-only: slice the whole dashboard (KPIs + rows) by one system/team.
+const SYSTEMS = ['UPW', 'Water', 'CDS', 'WCCS', 'SDS', 'Barcode', 'TMAH', 'CCTV']
+const systemFilter = ref('')
+const canFilterSystem = computed(() => isAdmin(user.value) || !user.value?.system)
 const dateFrom      = ref('')
 const dateTo        = ref('')
 const sortKey       = ref(null)
@@ -658,7 +675,7 @@ const transmittalStatusClass = (status) => pillClass(TRANSMITTAL_STATUS_COLORS, 
 const recipientStatusClass   = (status) => pillClass(RECIPIENT_STATUS_COLORS, status)
 
 // This report should be only visible by these two roles
-const canViewReport  = computed(() => hasRole(user.value, 'admin', 'approver'))
+const canViewReport  = computed(() => hasRole(user.value, 'owner', 'approver'))
 const tableColspan   = computed(() => (canViewReport.value ? 15 : 14))
 
 // ----- Inline remark editing -----
@@ -755,7 +772,7 @@ const PD_IN_PROGRESS = ['PD Acknowledgement', 'PD Sign-off']
 
 function canContinuePd(row) {
   return PD_IN_PROGRESS.includes(row.status)
-    && hasRole(user.value, 'admin', 'approver', 'warehouse')
+    && hasRole(user.value, 'owner', 'approver', 'warehouse')
 }
 
 function shortLabel(value) {
@@ -931,9 +948,10 @@ async function loadAll() {
   loading.value = true
   error.value   = ''
   try {
+    const q = systemFilter.value ? `?system=${encodeURIComponent(systemFilter.value)}` : ''
     const [kpisRes, rowsRes] = await Promise.all([
-      fetch(`${API}/kpis`,          { credentials: 'include' }),
-      fetch(`${API}/transmittals`,   { credentials: 'include' })
+      fetch(`${API}/kpis${q}`,          { credentials: 'include' }),
+      fetch(`${API}/transmittals${q}`,   { credentials: 'include' })
     ])
     if (!kpisRes.ok || !rowsRes.ok) throw new Error('Server error — check your permissions.')
     kpis.value = await kpisRes.json()
@@ -1124,5 +1142,6 @@ function printPdfModal() {
   pdfModalIframe.value?.contentWindow?.print()
 }
 
+watch(systemFilter, loadAll)
 onMounted(loadAll)
 </script>

@@ -84,7 +84,7 @@
         <!-- Demo accounts (mockup only) -->
         <div class="mt-7 pt-5 border-t border-slate-100">
           <p class="text-xs font-bold uppercase tracking-wide text-slate-400 mb-2">Demo accounts — click to sign in</p>
-          <p class="text-xs text-slate-400 mb-3">Any password works. Admins see every system; others only their own.</p>
+          <p class="text-xs text-slate-400 mb-3">Any password works. Owners see every system; others only their own.</p>
           <div class="space-y-1.5">
             <button
               v-for="acct in demoAccounts"
@@ -100,7 +100,7 @@
               </span>
               <span class="flex items-center gap-1.5 shrink-0">
                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                  :class="acct.role === 'admin' ? 'bg-red-100 text-red-700' : (acct.role === 'approver' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700')">
+                  :class="acct.role === 'owner' ? 'bg-red-100 text-red-700' : (acct.role === 'approver' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700')">
                   {{ acct.role }}
                 </span>
                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold"
@@ -131,7 +131,7 @@ const error   = ref('')
 
 // Mockup demo personas — mirror the seeded users in src/mock/api.js.
 const demoAccounts = [
-  { name: 'David Miller',   email: 'david.miller@teopm.com',   role: 'admin',     system: null },
+  { name: 'David Miller',   email: 'david.miller@teopm.com',   role: 'owner',     system: null },
   { name: 'Jennifer Adams', email: 'jennifer.adams@mic.com',   role: 'approver',  system: 'UPW' },
   { name: 'Robert Johnson', email: 'robert.johnson@mic.com',   role: 'warehouse', system: 'Water' },
   { name: 'Emily Carter',   email: 'emily.carter@mic.com',     role: 'approver',  system: 'CDS' },

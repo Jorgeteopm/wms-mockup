@@ -223,7 +223,7 @@ const SEED_TRANSMITTALS = [
 
 function seedUsers() {
   return [
-    { id: 1, name: 'David Miller',    email: 'david.miller@teopm.com',   company: 'TEOPM', phone: '+1 480 555 0142', role: 'admin',     system: null,    canManageUsers: true,  isActive: true,  lastLoginAt: '2026-09-19T13:40:00Z' },
+    { id: 1, name: 'David Miller',    email: 'david.miller@teopm.com',   company: 'TEOPM', phone: '+1 480 555 0142', role: 'owner',     system: null,    canManageUsers: true,  isActive: true,  lastLoginAt: '2026-09-19T13:40:00Z' },
     { id: 2, name: 'Jennifer Adams',  email: 'jennifer.adams@mic.com',   company: 'MIC',   phone: '+1 480 555 0110', role: 'approver',  system: 'UPW',   canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-18T22:05:00Z' },
     { id: 3, name: 'Robert Johnson',  email: 'robert.johnson@mic.com',   company: 'MIC',   phone: '+1 480 555 0133', role: 'warehouse', system: 'Water', canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-19T11:12:00Z' },
     { id: 4, name: 'Emily Carter',    email: 'emily.carter@mic.com',     company: 'MIC',   phone: '+1 602 555 0198', role: 'approver',  system: 'CDS',   canManageUsers: false, isActive: true,  lastLoginAt: '2026-09-15T16:30:00Z' },
@@ -248,13 +248,56 @@ function seedMaterialsDb() {
   })
 }
 
+// The inventory MOVEMENTS ledger — exactly like the real system, where the
+// Pinnacle Peak inbound sheet holds every movement as an In/Out row: inbounds,
+// outbounds, adjustments, quarantine and cycle-count variances. Qty on hand is
+// the running sum of this ledger; the reports are views over it.
+const TEAM_STAFF = { UPW: 'Jennifer Adams', Water: 'Robert Johnson', CDS: 'Emily Carter', WCCS: 'James Wilson' }
+
 function seedInbound() {
-  return [
-    { rowId: 'INB-501', system: 'UPW',   tpn: 'TPN-004501', barcodeTpn: 'TPN-004501', transmittalId: 'TR-1041', description1: '2" PVC Pipe', description2: 'Schedule 40', micPartNumber: 'MIC-0001', batch: 'B-2209', qty: 120, unit: 'FT', location: ['Yard A'],           condition: 'New',  remark: '',           type: 'Pipe',    spec: 'ASTM D1785', brand: 'Charlotte', category: 'Piping',     supplier: 'Ferguson' },
-    { rowId: 'INB-502', system: 'SDS',   tpn: 'TPN-004502', barcodeTpn: 'TPN-004502', transmittalId: 'TR-1041', description1: 'Gate Valve',  description2: 'Flanged',     micPartNumber: 'MIC-0004', batch: 'B-2210', qty: 6,   unit: 'EA', location: ['Warehouse 1'],      condition: 'New',  remark: 'Palletized', type: 'Valve',   spec: 'ANSI 150#',  brand: 'Nibco',     category: 'Valves',     supplier: 'HD Supply' },
-    { rowId: 'INB-503', system: 'Water', tpn: 'TPN-004503', barcodeTpn: 'TPN-004503', transmittalId: 'TR-1039', description1: 'THHN Wire',   description2: 'Black',       micPartNumber: 'MIC-0005', batch: 'B-2211', qty: 2500,unit: 'FT', location: ['Rack 3'],           condition: 'New',  remark: '',           type: 'Wire',    spec: 'UL Listed',  brand: 'Southwire', category: 'Electrical', supplier: 'Border States' },
-    { rowId: 'INB-504', system: 'UPW',   tpn: 'TPN-004504', barcodeTpn: 'TPN-004504', transmittalId: '',        description1: 'EMT Conduit', description2: '3/4"',        micPartNumber: 'MIC-0003', batch: 'B-2212', qty: 40,  unit: 'EA', location: ['Yard B', 'Bay 7'],  condition: 'Used', remark: 'Minor rust', type: 'Conduit', spec: 'NEMA',       brand: 'Wheatland', category: 'Electrical', supplier: 'Grainger' },
-  ]
+  const rows = []
+  let n = 500
+  const add = (i, movementType, direction, qty, opts = {}) => {
+    const m = materials[i]
+    const tpn = `TPN-00${4400 + i}`
+    rows.push({
+      rowId: `MOV-${n++}`, movementType, direction, // direction: 'In' | 'Out'
+      tpn, barcodeTpn: tpn, description1: m.description, description2: m.type, micPartNumber: `MIC-00${(i % 5) + 1}`,
+      qty, unit: m.unit, location: [inboundLocations[i % inboundLocations.length]],
+      system: m.system, brand: m.brand, type: m.type, category: m.product,
+      spec: picklists.specs[i % picklists.specs.length], supplier: picklists.suppliers[i % picklists.suppliers.length],
+      condition: opts.condition || 'New', transmittalId: opts.transmittalId || '',
+      createdBy: opts.by || TEAM_STAFF[m.system] || 'David Miller', createdAt: opts.date || '2026-09-15',
+      reason: opts.reason || '', remark: opts.reason || '', batch: opts.batch || '',
+    })
+  }
+  // Inbound receipts
+  add(0, 'Inbound', 'In', 120, { date: '2026-09-08', batch: 'B-2209', transmittalId: 'TR-1041' })
+  add(1, 'Inbound', 'In', 300, { date: '2026-09-09', batch: 'B-2210' })
+  add(2, 'Inbound', 'In', 80,  { date: '2026-09-09' })
+  add(3, 'Inbound', 'In', 60,  { date: '2026-09-10' })
+  add(8, 'Inbound', 'In', 1500,{ date: '2026-09-10', batch: 'B-2212' })
+  add(9, 'Inbound', 'In', 5000,{ date: '2026-09-11', batch: 'B-2211' })
+  add(10,'Inbound', 'In', 90,  { date: '2026-09-12' })
+  add(11,'Inbound', 'In', 24,  { date: '2026-09-12' })
+  // Outbound (releases against transmittals)
+  add(0, 'Outbound', 'Out', 40,  { date: '2026-09-12', transmittalId: 'TR-1037', by: 'Ashley Brown' })
+  add(1, 'Outbound', 'Out', 120, { date: '2026-09-13', transmittalId: 'TR-1041' })
+  add(8, 'Outbound', 'Out', 260, { date: '2026-09-14', transmittalId: 'TR-1040', by: 'Ashley Brown' })
+  add(9, 'Outbound', 'Out', 800, { date: '2026-09-16', transmittalId: 'TR-1039' })
+  add(2, 'Outbound', 'Out', 12,  { date: '2026-09-16', transmittalId: 'TR-1039' })
+  add(10,'Outbound', 'Out', 30,  { date: '2026-09-17', transmittalId: 'TR-1036' })
+  // Adjustments (+/-, who, reason)
+  add(0, 'Adjustment', 'In',  10, { date: '2026-09-15', reason: 'Found extra stock in bay', by: 'Jennifer Adams' })
+  add(3, 'Adjustment', 'Out', 5,  { date: '2026-09-16', reason: 'Damaged during handling', by: 'James Wilson' })
+  add(1, 'Adjustment', 'Out', 8,  { date: '2026-09-17', reason: 'Count correction', by: 'Robert Johnson' })
+  add(9, 'Adjustment', 'In',  25, { date: '2026-09-18', reason: 'Returned unused', by: 'Robert Johnson' })
+  // Cycle-count variances
+  add(2, 'Cycle Count', 'Out', 3,  { date: '2026-09-18', reason: 'Cycle count variance (short)', by: 'Emily Carter' })
+  add(8, 'Cycle Count', 'In',  15, { date: '2026-09-18', reason: 'Cycle count variance (over)', by: 'Jennifer Adams' })
+  // Quarantine
+  add(3, 'Quarantine', 'Out', 4,  { date: '2026-09-14', condition: 'Damaged', reason: 'Quarantined — damaged on receipt', by: 'James Wilson' })
+  return rows
 }
 
 function seedLaydown() {
@@ -266,19 +309,34 @@ function seedLaydown() {
   ]
 }
 
+// Team-to-team internal transfers (permanent, but logged). Scope: "Internal
+// Transfer Receipts". Flow: Requested -> (approve) In Transit [reserved] ->
+// (confirm receipt) Confirmed — which posts an OUTBOUND from the sending team
+// and an INBOUND to the receiving team. If it never arrives it can be Cancelled.
+function seedTransfers() {
+  return [
+    { id: 'TRF-300', fromSystem: 'Water', toSystem: 'CDS',   tpn: 'TPN-004404', description: '4" Gate Valve Flanged',       unit: 'EA', qty: 4,   status: 'Confirmed',  createdBy: 'Emily Carter',   createdAt: '2026-09-10', approvedBy: 'Robert Johnson', approvedAt: '2026-09-11', receivedBy: 'Emily Carter', receivedAt: '2026-09-12', cancelledBy: '', cancelledAt: '', note: 'Reallocated to CDS' },
+    { id: 'TRF-301', fromSystem: 'Water', toSystem: 'UPW',   tpn: 'TPN-004401', description: '3/4" Copper Pipe Type L',     unit: 'FT', qty: 100, status: 'In Transit', createdBy: 'Jennifer Adams', createdAt: '2026-09-17', approvedBy: 'Robert Johnson', approvedAt: '2026-09-17', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '', note: 'Approved — awaiting receipt' },
+    { id: 'TRF-302', fromSystem: 'UPW',   toSystem: 'CDS',   tpn: 'TPN-004408', description: '3/4" EMT Conduit',            unit: 'FT', qty: 200, status: 'Requested',  createdBy: 'Emily Carter',   createdAt: '2026-09-19', approvedBy: '', approvedAt: '', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '', note: 'Needs UPW approval' },
+    { id: 'TRF-303', fromSystem: 'WCCS',  toSystem: 'Water', tpn: 'TPN-004411', description: '4" Raised Face Ring Gasket',  unit: 'EA', qty: 10,  status: 'Cancelled',  createdBy: 'Robert Johnson', createdAt: '2026-09-18', approvedBy: 'James Wilson', approvedAt: '2026-09-18', receivedBy: '', receivedAt: '', cancelledBy: 'Robert Johnson', cancelledAt: '2026-09-20', note: 'Never arrived — cancelled' },
+  ]
+}
+
 function seedDb() {
   const users = seedUsers()
   return {
-    version: 4,
+    version: 6,
     // session.user = who is signed in (null = signed out → login screen).
     // Default to the admin so the demo opens ready; sign out to try other users.
-    session: { user: users.find(u => u.role === 'admin') || users[0] },
+    session: { user: users.find(u => u.role === 'owner') || users[0] },
     transmittals: SEED_TRANSMITTALS.map(buildSeedTransmittal),
     users,
     materialsDb: seedMaterialsDb(),
-    inbound: seedInbound(),
+    inbound: seedInbound(),      // the movements ledger (In/Out rows)
     laydown: seedLaydown(),
-    seq: { transmittal: 1043, inbound: 505, laydown: 9005, user: 8, laydownPn: 45 },
+    transfers: seedTransfers(),
+    seq: { transmittal: 1043, inbound: 505, laydown: 9005, user: 8, laydownPn: 45, movement: 600, transfer: 304 },
+  // (transfer seq starts at 304: seeds use TRF-300..303)
   }
 }
 
@@ -291,7 +349,7 @@ function loadDb() {
     const raw = localStorage.getItem(LS_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (parsed && Array.isArray(parsed.transmittals) && parsed.version === 4) return parsed
+      if (parsed && Array.isArray(parsed.transmittals) && parsed.version === 6) return parsed
     }
   } catch { /* ignore */ }
   const fresh = seedDb()
@@ -328,7 +386,7 @@ function sessionUser() {
   return (db.session && db.session.user) || null
 }
 function seesAllSystems(u) {
-  return !u || u.role === 'admin' || u.role === 'testing' || !u.system
+  return !u || u.role === 'owner' || u.role === 'testing' || !u.system
 }
 function visibleTransmittals() {
   const u = sessionUser()
@@ -339,6 +397,48 @@ function visibleBySystem(rows) {
   const u = sessionUser()
   if (seesAllSystems(u)) return rows
   return rows.filter(r => !r.system || r.system === u.system)
+}
+
+// Owner-only dashboard slice: narrow already-visible rows to one system.
+// A team user can't widen past their own system, so the param is ignored for them.
+function scopeSystem(rows, system) {
+  if (!system || !seesAllSystems(sessionUser())) return rows
+  return rows.filter(t => (t.system || (t.form && t.form.system)) === system)
+}
+
+// --- internal transfers helpers ---
+function visibleTransfers() {
+  const u = sessionUser()
+  if (seesAllSystems(u)) return db.transfers
+  return db.transfers.filter(t => t.fromSystem === u.system || t.toSystem === u.system)
+}
+
+// Adjust a team's on-hand for a material; create the record in the receiving
+// team if it does not exist there yet (a material carries a team).
+function adjustStock(tpn, system, delta) {
+  let r = db.materialsDb.find(x => x.tpn === tpn && x.system === system)
+  if (!r && delta > 0) {
+    const src = db.materialsDb.find(x => x.tpn === tpn) || {}
+    r = {
+      rowId: `MDB-${300 + db.materialsDb.length}`, tpn, description1: src.description1 || '', description2: src.description2 || '',
+      micPartNumber: src.micPartNumber || '', type: src.type || '', spec: src.spec || '', brand: src.brand || '', supplier: src.supplier || '',
+      category: src.category || '', unit: src.unit || '', location: '', remark: '', inventoryStatus: '', qtyOnHand: 0, totalInventory: 0,
+      attachmentCount: 0, picture: null, barcode: null, system,
+    }
+    db.materialsDb.unshift(r)
+  }
+  if (r) { r.totalInventory = Math.max(0, (r.totalInventory || 0) + delta); r.qtyOnHand = r.totalInventory; r.inventoryStatus = invStatusFor(r.qtyOnHand) }
+  return r
+}
+
+function pushMovement(o) {
+  db.inbound.unshift({
+    rowId: `MOV-${db.seq.movement++}`, movementType: o.movementType, direction: o.direction,
+    tpn: o.tpn, barcodeTpn: o.tpn, description1: o.description1 || '', description2: '', micPartNumber: '',
+    qty: Number(o.qty || 0), unit: o.unit || '', location: [], system: o.system,
+    brand: '', type: '', category: '', spec: '', supplier: '', condition: '', transmittalId: o.transmittalId || '',
+    createdBy: o.createdBy || 'Unknown', createdAt: today(), reason: o.reason || '', remark: o.reason || '', batch: '',
+  })
 }
 
 function transmittalDetail(t) {
@@ -375,8 +475,8 @@ function dashboardRow(t) {
   }
 }
 
-function adminKpis() {
-  const list = visibleTransmittals()
+function adminKpis(systemArg) {
+  const list = scopeSystem(visibleTransmittals(), systemArg)
   const byStatus = { Requester: 0, Approver: 0, Warehouse: 0, Completed: 0, Declined: 0, 'PD Acknowledgement': 0, 'PD Sign-off': 0 }
   list.forEach(t => { byStatus[t.status] = (byStatus[t.status] || 0) + 1 })
   const companies = {}, mats = {}
@@ -521,7 +621,7 @@ const routes = [
       // Forgiving demo: any other email signs in as a guest admin (sees all
       // systems). Use the one-click demo accounts to show system-scoped access.
       const nice = email ? email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Guest User'
-      u = { id: 0, name: nice || 'Guest User', email: email || 'guest@teopm.com', company: 'TEOPM', phone: '', role: 'admin', system: null, canManageUsers: false, isActive: true, lastLoginAt: null }
+      u = { id: 0, name: nice || 'Guest User', email: email || 'guest@teopm.com', company: 'TEOPM', phone: '', role: 'owner', system: null, canManageUsers: false, isActive: true, lastLoginAt: null }
     }
     u.lastLoginAt = new Date().toISOString()
     db.session.user = u; persist()
@@ -560,9 +660,9 @@ const routes = [
   ['GET',   /^\/api\/transmittals\/([^/]+)$/,                    (p) => { const t = findT(p[1]) || db.transmittals[0]; return json(transmittalDetail(t)) }],
 
   // --- admin dashboard / report ---
-  ['GET', /^\/api\/admin\/kpis$/,                                () => json(adminKpis())],
+  ['GET', /^\/api\/admin\/kpis$/,                                (_p, _init, q) => json(adminKpis(q && q.get('system')))],
   ['GET', /^\/api\/admin\/transmittals\/([^/]+)\/materials$/,    (p) => { const t = findT(p[1]); return json((t ? t.items : []).map(({ partNumber, type, description, product, qty, transferQty, remarks }) => ({ partNumber, type, description, product, qty, transferQty, remarks }))) }],
-  ['GET', /^\/api\/admin\/transmittals$/,                        () => json(visibleTransmittals().map(dashboardRow))],
+  ['GET', /^\/api\/admin\/transmittals$/,                        (_p, _init, q) => json(scopeSystem(visibleTransmittals(), q && q.get('system')).map(dashboardRow))],
   ['GET', /^\/api\/admin\/reports\/transmittal-log$/,            () => json(logReport())],
 
   // --- labels ---
@@ -577,13 +677,18 @@ const routes = [
   ['GET',  /^\/api\/inbound\/next-tpn$/,            () => json({ nextTpn: `TPN-00${4500 + db.inbound.length}` })],
   ['POST', /^\/api\/inbound\/quarantine$/,          async (_p, init) => { const b = await readBody(init); addInbound(b, true); return json({ message: 'Material quarantined', failedPhotos: [] }) }],
   ['POST', /^\/api\/inbound$/,                       async (_p, init) => { const b = await readBody(init); const mat = addInbound(b, false); return json({ materialRowId: mat, message: 'Inbound recorded' }) }],
-  ['GET',  /^\/api\/inbound$/,                       () => json(visibleBySystem(db.inbound))],
+  // Pinnacle Peak inbound view: only real receipts (the ledger also holds
+  // outbound/adjustment/cycle/quarantine rows, which belong to the reports).
+  ['GET',  /^\/api\/inbound$/,                       () => json(visibleBySystem(db.inbound).filter(r => !r.movementType || r.movementType === 'Inbound'))],
+
+  // --- inventory movements ledger (reporting) ---
+  ['GET',  /^\/api\/inventory\/movements$/,          () => json(visibleBySystem(db.inbound).map(r => ({ ...r, signedQty: r.direction === 'Out' ? -Number(r.qty || 0) : Number(r.qty || 0) })))],
 
   // --- materials database ---
   ['GET',   /^\/api\/materials-db\/records$/,              () => json({ records: visibleBySystem(db.materialsDb), columns: materialsDbColumns })],
   ['POST',  /^\/api\/materials-db\/picture-urls$/,         () => json({ urls: {} })],
   ['GET',   /^\/api\/materials-db\/([^/]+)\/stock$/,       (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); return json({ totalInventory: r ? r.totalInventory : 0 }) }],
-  ['POST',  /^\/api\/materials-db\/([^/]+)\/adjustments$/, async (p, init) => { const b = await readBody(init); const r = db.materialsDb.find(x => x.rowId === p[1]); if (r) { const d = (b.direction === 'negative' ? -1 : 1) * Number(b.quantity || 0); r.totalInventory = Math.max(0, r.totalInventory + d); r.qtyOnHand = r.totalInventory; r.inventoryStatus = invStatusFor(r.qtyOnHand); persist() } return json({ message: 'Stock adjusted' }) }],
+  ['POST',  /^\/api\/materials-db\/([^/]+)\/adjustments$/, async (p, init) => { const b = await readBody(init); const r = db.materialsDb.find(x => x.rowId === p[1]); if (r) { const q = Number(b.quantity || 0); const neg = b.direction === 'negative'; r.totalInventory = Math.max(0, r.totalInventory + (neg ? -q : q)); r.qtyOnHand = r.totalInventory; r.inventoryStatus = invStatusFor(r.qtyOnHand); const u = sessionUser(); db.inbound.unshift({ rowId: `MOV-${db.seq.movement++}`, movementType: 'Adjustment', direction: neg ? 'Out' : 'In', tpn: r.tpn, barcodeTpn: r.tpn, description1: r.description1, description2: r.description2, micPartNumber: r.micPartNumber, qty: q, unit: r.unit, location: String(r.location || '').split(',').map(s => s.trim()).filter(Boolean), system: r.system, brand: r.brand, type: r.type, category: r.category, spec: r.spec, supplier: r.supplier, condition: '', transmittalId: '', createdBy: (u && u.name) || 'Unknown', createdAt: today(), reason: b.remarks || '', remark: b.remarks || '', batch: '' }); persist() } return json({ message: 'Stock adjusted' }) }],
   ['GET',   /^\/api\/materials-db\/([^/]+)\/attachments$/, (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); const n = r ? r.attachmentCount : 0; const atts = []; for (let i = 0; i < n; i++) atts.push({ id: `att-${p[1]}-${i}`, name: i === 0 ? 'spec-sheet.pdf' : 'mill-cert.pdf', sizeInKb: i === 0 ? 244 : 88, createdBy: 'Marcus Reyes', mimeType: 'application/pdf' }); return json({ attachments: atts }) }],
   ['POST',  /^\/api\/materials-db\/([^/]+)\/attachments$/, (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); if (r) { r.attachmentCount = (r.attachmentCount || 0) + 1; persist() } return json({ message: 'Uploaded', failed: [] }) }],
   ['DELETE',/^\/api\/materials-db\/([^/]+)\/attachments\/([^/]+)$/, (p) => { const r = db.materialsDb.find(x => x.rowId === p[1]); if (r && r.attachmentCount > 0) { r.attachmentCount--; persist() } return json({ message: 'Deleted' }) }],
@@ -604,6 +709,50 @@ const routes = [
   ['GET',  /^\/api\/rosegarden\/options$/,          () => json(rgOptions)],
   ['POST', /^\/api\/rosegarden\/materials$/,        () => { const n = db.seq.laydownPn++; const pn = 'LDYPN-' + String(n).padStart(5, '0'); return json({ message: 'Delivery recorded', partNumber: pn }) }],
 
+  // --- internal transfers / material loans (team-to-team, with return) ---
+  ['GET',  /^\/api\/transfers$/, () => json(visibleTransfers())],
+  ['POST', /^\/api\/transfers$/, async (_p, init) => {
+    const b = await readBody(init)
+    const src = db.materialsDb.find(x => x.rowId === b.materialRowId) || db.materialsDb.find(x => x.tpn === b.tpn && x.system === b.fromSystem) || db.materialsDb.find(x => x.tpn === b.tpn) || {}
+    const u = sessionUser()
+    const t = {
+      id: `TRF-${db.seq.transfer++}`,
+      fromSystem: b.fromSystem || src.system || '', toSystem: b.toSystem || '',
+      tpn: b.tpn || src.tpn || '', description: b.description || src.description1 || '',
+      unit: b.unit || src.unit || '', qty: Number(b.qty || 0),
+      status: 'Requested',
+      createdBy: (u && u.name) || 'Unknown', createdAt: today(),
+      approvedBy: '', approvedAt: '', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '',
+      note: b.note || '',
+    }
+    db.transfers.unshift(t); persist(); return json({ message: 'Transfer requested', id: t.id })
+  }],
+  // Approve reserves the stock and marks it in transit — no ledger rows yet.
+  ['PATCH', /^\/api\/transfers\/([^/]+)\/approve$/, (p) => {
+    const t = db.transfers.find(x => x.id === p[1]); const u = sessionUser()
+    if (t && t.status === 'Requested') { t.status = 'In Transit'; t.approvedBy = (u && u.name) || 'Unknown'; t.approvedAt = today(); persist() }
+    return json({ message: 'Approved' })
+  }],
+  // Confirm receipt posts the outbound (sender) and inbound (receiver) at once.
+  ['PATCH', /^\/api\/transfers\/([^/]+)\/confirm$/, (p) => {
+    const t = db.transfers.find(x => x.id === p[1]); const u = sessionUser()
+    if (t && t.status === 'In Transit') {
+      adjustStock(t.tpn, t.fromSystem, -t.qty)
+      adjustStock(t.tpn, t.toSystem, t.qty)
+      pushMovement({ movementType: 'Transfer', direction: 'Out', system: t.fromSystem, tpn: t.tpn, description1: t.description, unit: t.unit, qty: t.qty, createdBy: (u && u.name) || 'Unknown', reason: `Transfer to ${t.toSystem}` })
+      pushMovement({ movementType: 'Transfer', direction: 'In', system: t.toSystem, tpn: t.tpn, description1: t.description, unit: t.unit, qty: t.qty, createdBy: (u && u.name) || 'Unknown', reason: `Transfer from ${t.fromSystem}` })
+      t.status = 'Confirmed'; t.receivedBy = (u && u.name) || 'Unknown'; t.receivedAt = today(); persist()
+    }
+    return json({ message: 'Confirmed' })
+  }],
+  // Cancel a transfer that never arrived (before receipt). Nothing to reverse:
+  // the ledger rows are only posted on confirm.
+  ['PATCH', /^\/api\/transfers\/([^/]+)\/cancel$/, (p) => {
+    const t = db.transfers.find(x => x.id === p[1]); const u = sessionUser()
+    if (t && (t.status === 'Requested' || t.status === 'In Transit')) { t.status = 'Cancelled'; t.cancelledBy = (u && u.name) || 'Unknown'; t.cancelledAt = today(); persist() }
+    return json({ message: 'Cancelled' })
+  }],
+
   // --- catalogues ---
   ['GET',  /^\/api\/catalogues\/rosegarden\/locations$/, () => json(rgLocations)],
   ['GET',  /^\/api\/catalogues\/rosegarden\/brands$/,    () => json(rgBrands)],
@@ -619,9 +768,11 @@ function addInbound(b, quarantine) {
   const system = (u && u.system) ? u.system : (b.system || '')
   const rec = {
     rowId: `INB-${n}`, tpn, barcodeTpn: tpn, transmittalId: '', system,
+    movementType: quarantine ? 'Quarantine' : 'Inbound', direction: quarantine ? 'Out' : 'In',
+    createdBy: (u && u.name) || 'Unknown', createdAt: today(),
     description1: b.description1 || '', description2: b.description2 || '', micPartNumber: b.micPartNumber || '',
     batch: b.batch || '', qty: Number(b.quantity || 0), unit: b.unit || '', location: Array.isArray(b.location) ? b.location : (b.location ? [b.location] : []),
-    condition: b.condition || (quarantine ? 'Damaged' : 'New'), remark: b.remarks || '', type: b.type || '', spec: b.spec || '',
+    condition: b.condition || (quarantine ? 'Damaged' : 'New'), remark: b.remarks || '', reason: b.remarks || '', type: b.type || '', spec: b.spec || '',
     brand: b.brand || '', category: b.category || '', supplier: b.supplier || '',
   }
   db.inbound.unshift(rec)
@@ -671,7 +822,8 @@ window.fetch = async function (input, init = {}) {
   const method = ((init && init.method) || (typeof input === 'object' && input.method) || 'GET').toUpperCase()
 
   let pathname = url
-  try { pathname = new URL(url, window.location.origin).pathname } catch { /* keep raw */ }
+  let query = new URLSearchParams()
+  try { const u = new URL(url, window.location.origin); pathname = u.pathname; query = u.searchParams } catch { /* keep raw */ }
 
   if (!pathname.startsWith('/api/')) return realFetch(input, init)
 
@@ -680,7 +832,7 @@ window.fetch = async function (input, init = {}) {
     const match = pattern.exec(pathname)
     if (!match) continue
     try {
-      const result = await handler(match, init)
+      const result = await handler(match, init, query)
       return result instanceof Response ? result : json(result)
     } catch (err) {
       return json({ message: String((err && err.message) || err) }, 500)
