@@ -42,6 +42,7 @@
     <!-- Material (Pinnacle Inbound) -->
     <template v-if="activeSection.key === 'material'">
       <InboundView v-if="activeTab === 'new'" embedded />
+      <NewOutboundView v-else-if="activeTab === 'outbound'" embedded kind="material" />
       <ReprintLabelsView v-else-if="activeTab === 'reprint'" embedded />
       <MaterialsDbView v-else embedded />
     </template>
@@ -50,7 +51,8 @@
     <template v-else>
       <LaydownForm v-if="activeTab === 'new'" embedded />
       <BreakdownLabelsView v-else-if="activeTab === 'breakdown'" embedded mode="set" />
-      <BreakdownLabelsView v-else-if="activeTab === 'outbound'" key="outbound" embedded mode="outbound" />
+      <BreakdownLabelsView v-else-if="activeTab === 'io'" key="io" embedded mode="outbound" />
+      <NewOutboundView v-else-if="activeTab === 'newOutbound'" embedded kind="equipment" />
       <ReprintLaydownLabelsView v-else-if="activeTab === 'reprint'" embedded />
       <EquipmentListView v-else embedded />
     </template>
@@ -68,6 +70,7 @@ import LaydownForm from './LaydownForm.vue'
 import ReprintLaydownLabelsView from './ReprintLaydownLabelsView.vue'
 import BreakdownLabelsView from './BreakdownLabelsView.vue'
 import EquipmentListView from './EquipmentListView.vue'
+import NewOutboundView from './NewOutboundView.vue'
 import { MATERIALS_HUB_PATH, MATERIAL_SECTIONS } from '../config/forms.js'
 
 const HUB_PATH = MATERIALS_HUB_PATH
