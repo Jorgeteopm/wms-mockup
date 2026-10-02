@@ -19,6 +19,8 @@ npm run preview          # preview the vite build
 npm test                  # node --test 'test/*.test.js'
 ```
 
+The system `node` (pacman package) on this machine can break after a rolling-release update (`libsimdjson` ABI bump) — if `node --version` errors with a missing `libsimdjson.so.*`, use the nvm.fish-managed v24 instead: `fish -c "nvm use v24.15.0; and <command>"`.
+
 After editing anything under `src/`, regenerate the deliverable with `npm run standalone` — `WMS-demo.html` is a committed build artifact, not hand-edited.
 
 ## Architecture
@@ -33,4 +35,4 @@ After editing anything under `src/`, regenerate the deliverable with `npm run st
 
 ## Key screens / routes
 
-See the route table in README.md for the full list (dashboard `#/admin/transmittals`, log report, report builder, user management, inbound/materials, laydown portal, etc). The transmittal lifecycle state machine (`signatureStatus` progression Requester → Approver → Warehouse → Recipient → Completed, `transmittalStatus` Open/Closed/Declined/No-Show) is implemented in `src/mock/api.js` and mirrors the real backend's semantics.
+See the route table in README.md for the full list. Nav is organized as `#/dashboards` (Transmittals/Materials/Equipment tabs), `#/reports` (Report Builder/Log Report tabs, its own top-level entry next to Dashboards), `#/admin/users` (Admin Portal), `#/inbound-hub`, `#/outbound` (Transmittals/Material/Equipment/Internal Team Transfers segments — the last filtered out for Warehouse users), `#/inventory` (each split Material/Equipment, mirroring the real app's structure). Old standalone paths (`/admin/transmittals`, `/materials-hub`, `/inbound`, `/transfers`, etc.) are kept as redirects for bookmarks. The transmittal lifecycle state machine (`signatureStatus` progression Requester → Approver → Warehouse → Recipient → Completed, `transmittalStatus` Open/Closed/Declined/No-Show) is implemented in `src/mock/api.js` and mirrors the real backend's semantics.

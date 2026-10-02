@@ -303,7 +303,7 @@ const systemScoped = computed(() =>
   systemFilter.value ? movements.value.filter(r => r.system === systemFilter.value) : movements.value
 )
 
-const MOVEMENT_TYPES = ['Inbound', 'Outbound', 'Adjustment', 'Quarantine', 'Cycle Count']
+const MOVEMENT_TYPES = ['Inbound', 'Outbound', 'Adjustment']
 
 const typeTabs = computed(() => [
   { key: 'all', label: 'All', count: systemScoped.value.length },

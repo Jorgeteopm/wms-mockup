@@ -40,53 +40,46 @@
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-brand-600"
         >
-          User Management
+          Admin Portal
         </router-link>
         <router-link
-          to="/admin/transmittals"
+          to="/dashboards"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-brand-600"
         >
-          Dashboard
+          Dashboards
         </router-link>
         <router-link
           v-if="hasRole(user, 'owner', 'approver')"
-          to="/admin/reports/transmittal-log"
-          class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
-          active-class="!text-brand-600"
-        >
-          Log Report
-        </router-link>
-        <router-link
-          v-if="hasRole(user, 'owner', 'approver')"
-          to="/admin/reports/builder"
+          to="/reports"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-brand-600"
         >
           Reports
         </router-link>
         <router-link
-          to="/"
+          v-if="hasRole(user, 'owner', 'warehouse', 'approver')"
+          :to="INBOUND_HUB_PATH"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-brand-600"
         >
-          Transmittals
+          Inbound Forms
         </router-link>
         <router-link
           v-if="hasRole(user, 'owner', 'warehouse', 'approver')"
-          :to="MATERIALS_HUB_PATH"
+          :to="OUTBOUND_HUB_PATH"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-brand-600"
         >
-          Materials
+          Outbound Forms
         </router-link>
         <router-link
-          v-if="hasRole(user, 'owner', 'approver')"
-          to="/transfers"
+          v-if="hasRole(user, 'owner', 'warehouse', 'approver')"
+          :to="INVENTORY_HUB_PATH"
           class="px-2 py-2.5 rounded-lg text-slate-500 hover:text-brand-600 hover:bg-slate-50 font-medium transition-colors"
           active-class="!text-brand-600"
         >
-          Internal Transfer Requests
+          Inventory
         </router-link>
         <button @click="logout" class="px-3 py-2.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-slate-50 transition-colors font-medium shrink-0">
           Sign out
@@ -106,6 +99,6 @@
 import { user, logout } from './composables/useAuth.js'
 import { ROLE_COLORS } from './config/statusColors.js'
 import { isAdmin, hasRole } from './utils/roles.js'
-import { MATERIALS_HUB_PATH } from './config/forms.js'
+import { INBOUND_HUB_PATH, OUTBOUND_HUB_PATH, INVENTORY_HUB_PATH } from './config/forms.js'
 
 </script>

@@ -7,9 +7,9 @@
       <div class="flex-1 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 class="text-white font-bold text-base sm:text-xl leading-tight">
-            P2 – New Material Picking &amp; Requisition Form
+            {{ title }}
           </h1>
-          <p class="text-brand-200 text-sm mt-0.5">新領料申請單</p>
+          <p class="text-brand-200 text-sm mt-0.5">{{ subtitle }}</p>
         </div>
         <button
           v-if="!isDeclined && (!isSignMode || currentStage)"
@@ -95,7 +95,7 @@
             <p v-if="lockedSystem && !isSignMode" class="text-xs text-slate-400 -mt-0.5">Locked to your system.</p>
           </div>
           <!-- BOQ -->
-          <div class="md:col-span-2 flex flex-col gap-1.5">
+          <div v-if="!hidden('boq')" class="md:col-span-2 flex flex-col gap-1.5">
             <label class="form-label">BOQ # <span class="label-zh">BOQ編號</span></label>
             <input v-model="form.boq" :disabled="isSignMode" type="text" placeholder="BOQ-2026-XXXX" class="form-input" />
           </div>
@@ -105,7 +105,7 @@
             <input v-model="form.dateApplication" :disabled="isSignMode" type="date" :min="today" class="form-input" />
           </div>
           <!-- Application Results -->
-          <div class="md:col-span-2 flex flex-col gap-1.5">
+          <div v-if="!hidden('applicationResults')" class="md:col-span-2 flex flex-col gap-1.5">
             <label class="form-label">Application Results <span class="label-zh">申請結果</span></label>
             <input v-model="form.applicationResults" :disabled="isSignMode" type="text" placeholder="Pending / Approved…" class="form-input" />
           </div>
@@ -131,14 +131,14 @@
             <input v-model="form.applicantName" :disabled="isSignMode" type="text" placeholder="Full name / +63 9XX XXX XXXX" class="form-input" />
           </div>
           <!-- Email -->
-          <div class="sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
+          <div v-if="!hidden('requestorEmail')" class="sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
             <label class="form-label">Requestor Email <span class="label-zh">申請人電郵</span></label>
             <input v-model="form.requestorEmail" :disabled="isSignMode" type="email" placeholder="name@company.com" class="form-input" />
           </div>
 
           <!-- Urgency — takes the whole row when unchecked, so the fields below cannot
                drift up into the gap the urgency inputs leave behind. -->
-          <div :class="form.urgency ? 'md:col-span-2' : 'sm:col-span-2 md:col-span-6'" class="flex flex-col gap-1.5">
+          <div v-if="!hidden('urgency')" :class="form.urgency ? 'md:col-span-2' : 'sm:col-span-2 md:col-span-6'" class="flex flex-col gap-1.5">
             <label class="form-label">Urgency <span class="label-zh">緊急</span></label>
             <div class="flex items-center gap-2 py-2">
               <input
@@ -152,7 +152,7 @@
             </div>
           </div>
           <!-- Urgency Level - enabled only when Urgent is checked -->
-          <div v-if="form.urgency" class="sm:col-span-2 md:col-span-4 flex flex-col gap-1.5">
+          <div v-if="!hidden('urgency') && form.urgency" class="sm:col-span-2 md:col-span-4 flex flex-col gap-1.5">
             <label class="form-label">Urgency Level <span class="label-zh">緊急程度</span></label>
             <div class="flex items-center gap-4 py-2 flex-wrap">
               <label
@@ -174,7 +174,7 @@
             </div>
           </div>
           <!-- Urgency Reason -->
-          <div v-if="form.urgency" class="sm:col-span-2 md:col-span-6 flex flex-col gap-1.5">
+          <div v-if="!hidden('urgency') && form.urgency" class="sm:col-span-2 md:col-span-6 flex flex-col gap-1.5">
             <label class="form-label">Urgency Reason <span class="label-zh">緊急原因</span></label>
             <input
               v-model="form.urgencyReason"
@@ -185,7 +185,7 @@
             />
           </div>
           <!-- Reason -->
-          <div class="sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
+          <div v-if="!hidden('reason')" class="sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
             <label class="form-label">Reason <span class="label-zh">原因</span></label>
             <textarea
               v-model="form.reason"
@@ -197,7 +197,7 @@
           <!-- The sheet's Remark column, shown as the MIC Transmittal ID. Set by the requester
                here; afterwards it is the dashboard that edits it, so this is read-only once the
                transmittal exists. -->
-          <div class="sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
+          <div v-if="!hidden('remark')" class="sm:col-span-2 md:col-span-3 flex flex-col gap-1.5">
             <label class="form-label">MIC Transmittal ID <span class="label-zh">MIC 傳遞單編號</span></label>
             <input
               v-model="form.remark"
@@ -1284,8 +1284,19 @@ import { user } from '../composables/useAuth.js'
 import { effectiveRole, hasRole } from '../utils/roles.js'
 
 const props = defineProps({
-  id: { type: String, default: null }
+  id: { type: String, default: null },
+  // Work Order reuses this whole form/lifecycle but drops a handful of fields that only
+  // make sense for a full transmittal (BOQ, Application Results, Requestor Email, Urgency,
+  // Reason, MIC Transmittal ID). None of those are required by submitForm's validation, so
+  // hiding them is purely a template concern - the field just keeps its default value.
+  hiddenFields: { type: Array, default: () => [] },
+  title: { type: String, default: 'P2 – New Material Picking & Requisition Form' },
+  subtitle: { type: String, default: '新領料申請單' },
 })
+
+function hidden(key) {
+  return props.hiddenFields.includes(key)
+}
 
 const router = useRouter()
 

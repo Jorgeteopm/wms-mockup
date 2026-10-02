@@ -237,6 +237,7 @@ function seedUsers() {
 
 function seedMaterialsDb() {
   const qtys = [340, 12, 0, 88, 1500, 26, 210, 5, 900, 4200, 60, 18, 2, 34, 500]
+  const leadTimes = [14, 21, 7, 30, 10, 45, 5, 28, 14, 7, 21, 10, 60, 14, 3]
   return materials.map((m, i) => {
     const qty = qtys[i] ?? 50
     return {
@@ -244,7 +245,7 @@ function seedMaterialsDb() {
       micPartNumber: `MIC-00${(i % 5) + 1}`, type: m.type, spec: picklists.specs[i % picklists.specs.length],
       brand: m.brand, supplier: picklists.suppliers[i % picklists.suppliers.length], category: m.product, unit: m.unit,
       location: [inboundLocations[i % inboundLocations.length], inboundLocations[(i + 2) % inboundLocations.length]].join(', '),
-      remark: '', inventoryStatus: invStatusFor(qty), qtyOnHand: qty, totalInventory: qty,
+      remark: '', inventoryStatus: invStatusFor(qty), qtyOnHand: qty, totalInventory: qty, leadTime: leadTimes[i] ?? 14,
       attachmentCount: i % 3 === 0 ? 2 : 0, picture: null, barcode: null, system: m.system, warehouse: m.warehouse,
     }
   })
@@ -294,23 +295,21 @@ function seedInbound() {
   add(3, 'Adjustment', 'Out', 5,  { date: '2026-09-16', reason: 'Damaged during handling', by: 'James Wilson' })
   add(1, 'Adjustment', 'Out', 8,  { date: '2026-09-17', reason: 'Count correction', by: 'Robert Johnson' })
   add(9, 'Adjustment', 'In',  25, { date: '2026-09-18', reason: 'Returned unused', by: 'Robert Johnson' })
-  // Cycle-count variances
-  add(2, 'Cycle Count', 'Out', 3,  { date: '2026-09-18', reason: 'Cycle count variance (short)', by: 'Emily Carter' })
-  add(8, 'Cycle Count', 'In',  15, { date: '2026-09-18', reason: 'Cycle count variance (over)', by: 'Jennifer Adams' })
-  // Quarantine
-  add(3, 'Quarantine', 'Out', 4,  { date: '2026-09-14', condition: 'Damaged', reason: 'Quarantined — damaged on receipt', by: 'James Wilson' })
+  // Quarantine (damaged material held out of stock, from the Inbound form's "Submit to
+  // Quarantine Area" path) - feeds the Inventory > Quarantine view.
+  add(3, 'Quarantine', 'Out', 4, { date: '2026-09-14', condition: 'Damaged', reason: 'Damaged on receipt — split fitting', by: 'James Wilson' })
   return rows
 }
 
 function seedLaydown() {
   return [
-    { rowId: 'LY-9001', parentRowId: null, partNumber: 'LDYPN-00042', micPartNumber: 'RG-CHEM-001', breakdownCode: '', chemical: 'Sodium Hypochlorite', description: 'NaOCl 12.5% — 55gal drum', qty: 4, location: 'Chem Pad', containerNumber: 'CN-88213', packageType: 'Pallet', poNumber: 'PO-55120', arrivalDate: '2026-09-18', supplier: 'Univar', system: 'Water', warehouse: 'Laydown Yard' },
-    { rowId: 'LY-9002', parentRowId: null, partNumber: 'LDYPN-00043', micPartNumber: 'RG-CHEM-002', breakdownCode: '', chemical: 'Sulfuric Acid',       description: 'H2SO4 93% — tote',        qty: 1, location: 'Chem Pad', containerNumber: 'CN-88214', packageType: 'Crate',  poNumber: 'PO-55121', arrivalDate: '2026-09-18', supplier: 'Brenntag', system: 'CDS', warehouse: 'Pinnacle Peak' },
-    { rowId: 'LY-9003', parentRowId: 'LY-9002', partNumber: 'LDYPN-00043-01', micPartNumber: 'RG-CHEM-002', breakdownCode: 'LDYPN-00043-01', chemical: 'Sulfuric Acid', description: 'Tote — Unit 1', qty: 1, location: 'Grid B4', containerNumber: 'CN-88214', packageType: 'Crate', poNumber: 'PO-55121', arrivalDate: '2026-09-18', parentMicPartNumber: 'RG-CHEM-002', parentPartNumber: 'LDYPN-00043', parentChemical: 'Sulfuric Acid', comments: '', barcodeValue: 'LDYPN-00043-01', system: 'CDS', warehouse: 'Pinnacle Peak' },
-    { rowId: 'LY-9004', parentRowId: null, partNumber: 'LDYPN-00044', micPartNumber: 'RG-VALV-010', breakdownCode: '', chemical: '', description: '6" Butterfly Valve', qty: 12, location: 'Grid A1', containerNumber: 'CN-88215', packageType: 'Box', poNumber: 'PO-55122', arrivalDate: '2026-09-17', supplier: 'Nibco', system: 'WCCS', warehouse: 'Laydown Yard' },
-    { rowId: 'LY-9005', parentRowId: null, partNumber: 'LDYPN-00045', micPartNumber: 'RG-VALV-011', breakdownCode: '', chemical: '', description: '3" Check Valve', qty: 8, location: 'Grid A2', containerNumber: 'CN-88216', packageType: 'Crate', poNumber: 'PO-55123', arrivalDate: '2026-09-19', supplier: 'Nibco', system: 'SDS', warehouse: 'North Yard' },
-    { rowId: 'LY-9006', parentRowId: null, partNumber: 'LDYPN-00046', micPartNumber: 'RG-PUMP-020', breakdownCode: '', chemical: '', description: '5HP Booster Pump', qty: 2, location: 'Grid B1', containerNumber: 'CN-88217', packageType: 'Pallet', poNumber: 'PO-55124', arrivalDate: '2026-09-19', supplier: 'Grundfos', system: 'UPW', warehouse: 'Pinnacle Peak' },
-    { rowId: 'LY-9007', parentRowId: null, partNumber: 'LDYPN-00047', micPartNumber: 'RG-COND-030', breakdownCode: '', chemical: '', description: '2" EMT Conduit Bundle', qty: 20, location: 'Grid C1', containerNumber: 'CN-88218', packageType: 'Bundle', poNumber: 'PO-55125', arrivalDate: '2026-09-20', supplier: 'Wheatland', system: 'Barcode', warehouse: 'Central Warehouse' },
+    { rowId: 'LY-9001', parentRowId: null, partNumber: 'LDYPN-00042', micPartNumber: 'RG-CHEM-001', breakdownCode: '', chemical: 'Sodium Hypochlorite', description: 'NaOCl 12.5% — 55gal drum', qty: 4, location: 'Chem Pad', containerNumber: 'CN-88213', packageType: 'Pallet', poNumber: 'PO-55120', arrivalDate: '2026-09-18', supplier: 'Univar', system: 'Water', warehouse: 'Laydown Yard', category: 'Chemical', brand: 'Univar', leadTime: 21, picture: null, condition: 'Good' },
+    { rowId: 'LY-9002', parentRowId: null, partNumber: 'LDYPN-00043', micPartNumber: 'RG-CHEM-002', breakdownCode: '', chemical: 'Sulfuric Acid',       description: 'H2SO4 93% — tote',        qty: 1, location: 'Chem Pad', containerNumber: 'CN-88214', packageType: 'Crate',  poNumber: 'PO-55121', arrivalDate: '2026-09-18', supplier: 'Brenntag', system: 'CDS', warehouse: 'Pinnacle Peak', category: 'Chemical', brand: 'Brenntag', leadTime: 28, picture: null, condition: 'Good' },
+    { rowId: 'LY-9003', parentRowId: 'LY-9002', partNumber: 'LDYPN-00043-01', micPartNumber: 'RG-CHEM-002', breakdownCode: 'LDYPN-00043-01', chemical: 'Sulfuric Acid', description: 'Tote — Unit 1', qty: 1, location: 'Grid B4', containerNumber: 'CN-88214', packageType: 'Crate', poNumber: 'PO-55121', arrivalDate: '2026-09-18', parentMicPartNumber: 'RG-CHEM-002', parentPartNumber: 'LDYPN-00043', parentChemical: 'Sulfuric Acid', comments: '', barcodeValue: 'LDYPN-00043-01', system: 'CDS', warehouse: 'Pinnacle Peak', category: 'Chemical', brand: 'Brenntag', supplier: 'Brenntag', leadTime: 28, picture: null, condition: 'Good' },
+    { rowId: 'LY-9004', parentRowId: null, partNumber: 'LDYPN-00044', micPartNumber: 'RG-VALV-010', breakdownCode: '', chemical: '', description: '6" Butterfly Valve', qty: 12, location: 'Grid A1', containerNumber: 'CN-88215', packageType: 'Box', poNumber: 'PO-55122', arrivalDate: '2026-09-17', supplier: 'Nibco', system: 'WCCS', warehouse: 'Laydown Yard', category: 'Valve', brand: 'Nibco', leadTime: 14, picture: null, condition: 'Damaged' },
+    { rowId: 'LY-9005', parentRowId: null, partNumber: 'LDYPN-00045', micPartNumber: 'RG-VALV-011', breakdownCode: '', chemical: '', description: '3" Check Valve', qty: 8, location: 'Grid A2', containerNumber: 'CN-88216', packageType: 'Crate', poNumber: 'PO-55123', arrivalDate: '2026-09-19', supplier: 'Nibco', system: 'SDS', warehouse: 'North Yard', category: 'Valve', brand: 'Nibco', leadTime: 14, picture: null, condition: 'Good' },
+    { rowId: 'LY-9006', parentRowId: null, partNumber: 'LDYPN-00046', micPartNumber: 'RG-PUMP-020', breakdownCode: '', chemical: '', description: '5HP Booster Pump', qty: 2, location: 'Grid B1', containerNumber: 'CN-88217', packageType: 'Pallet', poNumber: 'PO-55124', arrivalDate: '2026-09-19', supplier: 'Grundfos', system: 'UPW', warehouse: 'Pinnacle Peak', category: 'Equipment', brand: 'Grundfos', leadTime: 45, picture: null, condition: 'Good' },
+    { rowId: 'LY-9007', parentRowId: null, partNumber: 'LDYPN-00047', micPartNumber: 'RG-COND-030', breakdownCode: '', chemical: '', description: '2" EMT Conduit Bundle', qty: 20, location: 'Grid C1', containerNumber: 'CN-88218', packageType: 'Bundle', poNumber: 'PO-55125', arrivalDate: '2026-09-20', supplier: 'Wheatland', system: 'Barcode', warehouse: 'Central Warehouse', category: 'Electrical', brand: 'Wheatland', leadTime: 10, picture: null, condition: 'Damaged' },
   ]
 }
 
@@ -320,17 +319,50 @@ function seedLaydown() {
 // and an INBOUND to the receiving team. If it never arrives it can be Cancelled.
 function seedTransfers() {
   return [
-    { id: 'TRF-300', fromSystem: 'Water', toSystem: 'CDS',   tpn: 'TPN-004404', description: '4" Gate Valve Flanged',       unit: 'EA', qty: 4,   status: 'Confirmed',  createdBy: 'Emily Carter',   createdAt: '2026-09-10', approvedBy: 'Robert Johnson', approvedAt: '2026-09-11', receivedBy: 'Emily Carter', receivedAt: '2026-09-12', cancelledBy: '', cancelledAt: '', note: 'Reallocated to CDS' },
-    { id: 'TRF-301', fromSystem: 'Water', toSystem: 'UPW',   tpn: 'TPN-004401', description: '3/4" Copper Pipe Type L',     unit: 'FT', qty: 100, status: 'In Transit', createdBy: 'Jennifer Adams', createdAt: '2026-09-17', approvedBy: 'Robert Johnson', approvedAt: '2026-09-17', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '', note: 'Approved — awaiting receipt' },
-    { id: 'TRF-302', fromSystem: 'UPW',   toSystem: 'CDS',   tpn: 'TPN-004408', description: '3/4" EMT Conduit',            unit: 'FT', qty: 200, status: 'Requested',  createdBy: 'Emily Carter',   createdAt: '2026-09-19', approvedBy: '', approvedAt: '', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '', note: 'Needs UPW approval' },
-    { id: 'TRF-303', fromSystem: 'WCCS',  toSystem: 'Water', tpn: 'TPN-004411', description: '4" Raised Face Ring Gasket',  unit: 'EA', qty: 10,  status: 'Cancelled',  createdBy: 'Robert Johnson', createdAt: '2026-09-18', approvedBy: 'James Wilson', approvedAt: '2026-09-18', receivedBy: '', receivedAt: '', cancelledBy: 'Robert Johnson', cancelledAt: '2026-09-20', note: 'Never arrived — cancelled' },
+    { id: 'TRF-300', fromSystem: 'Water', toSystem: 'CDS',   fromWarehouse: 'Laydown Yard',   toWarehouse: 'Pinnacle Peak',     tpn: 'TPN-004404', description: '4" Gate Valve Flanged',       unit: 'EA', qty: 4,   status: 'Confirmed',  createdBy: 'Emily Carter',   createdAt: '2026-09-10', approvedBy: 'Robert Johnson', approvedAt: '2026-09-11', receivedBy: 'Emily Carter', receivedAt: '2026-09-12', cancelledBy: '', cancelledAt: '', note: 'Reallocated to CDS' },
+    { id: 'TRF-301', fromSystem: 'Water', toSystem: 'UPW',   fromWarehouse: 'Pinnacle Peak',  toWarehouse: 'Pinnacle Peak',     tpn: 'TPN-004401', description: '3/4" Copper Pipe Type L',     unit: 'FT', qty: 100, status: 'In Transit', createdBy: 'Jennifer Adams', createdAt: '2026-09-17', approvedBy: 'Robert Johnson', approvedAt: '2026-09-17', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '', note: 'Approved — awaiting receipt' },
+    { id: 'TRF-302', fromSystem: 'UPW',   toSystem: 'CDS',   fromWarehouse: 'Laydown Yard',   toWarehouse: 'Central Warehouse', tpn: 'TPN-004408', description: '3/4" EMT Conduit',            unit: 'FT', qty: 200, status: 'Requested',  createdBy: 'Emily Carter',   createdAt: '2026-09-19', approvedBy: '', approvedAt: '', receivedBy: '', receivedAt: '', cancelledBy: '', cancelledAt: '', note: 'Needs UPW approval' },
+    { id: 'TRF-303', fromSystem: 'WCCS',  toSystem: 'Water', fromWarehouse: 'Laydown Yard',   toWarehouse: 'North Yard',        tpn: 'TPN-004411', description: '4" Raised Face Ring Gasket',  unit: 'EA', qty: 10,  status: 'Cancelled',  createdBy: 'Robert Johnson', createdAt: '2026-09-18', approvedBy: 'James Wilson', approvedAt: '2026-09-18', receivedBy: '', receivedAt: '', cancelledBy: 'Robert Johnson', cancelledAt: '2026-09-20', note: 'Never arrived — cancelled' },
   ]
+}
+
+// Who gets notified by email for each event type. Mirrors the real backend's
+// APPROVER_EMAILS / WAREHOUSE_EMAILS / NO_SHOW_EMAILS env-var lists, made editable here since
+// this mockup has no real email sending or .env file.
+function seedDistributionLists() {
+  return {
+    warehouse: ['robert.johnson@mic.com', 'james.wilson@mic.com', 'ashley.brown@mic.com'],
+    approvers: ['jennifer.adams@mic.com', 'emily.carter@mic.com'],
+    noShow:    ['logistics@teopm.com', 'david.miller@teopm.com'],
+  }
+}
+
+// A basic, illustration-only permission matrix. These four role labels (Owner / Admin /
+// Warehouse Admin / Warehouse) are a simplified planning model for this screen, distinct from
+// the login roles the demo accounts actually use (owner/approver/warehouse) — toggling a
+// checkbox here does not change what any demo account can do.
+const PERMISSION_ROLES = ['Owner', 'Admin', 'Warehouse Admin', 'Warehouse']
+function seedPermissions() {
+  return {
+    roles: PERMISSION_ROLES,
+    capabilities: [
+      { key: 'viewDashboards',    label: 'View Dashboards',               grants: { Owner: true, Admin: true,  'Warehouse Admin': true,  Warehouse: true } },
+      { key: 'viewAllSystems',    label: 'View All Systems (cross-team)', grants: { Owner: true, Admin: true,  'Warehouse Admin': false, Warehouse: false } },
+      { key: 'approveTransmittals', label: 'Approve Transmittals',        grants: { Owner: true, Admin: true,  'Warehouse Admin': false, Warehouse: false } },
+      { key: 'warehouseReceiving', label: 'Warehouse Receiving / Sign-off', grants: { Owner: true, Admin: true, 'Warehouse Admin': true, Warehouse: true } },
+      { key: 'createInboundOutbound', label: 'Create Inbound / Outbound Forms', grants: { Owner: true, Admin: true, 'Warehouse Admin': true, Warehouse: true } },
+      { key: 'editInventory',     label: 'Edit Inventory Records',        grants: { Owner: true, Admin: true,  'Warehouse Admin': true,  Warehouse: false } },
+      { key: 'teamTransfers',     label: 'Internal Team Transfers',       grants: { Owner: true, Admin: true,  'Warehouse Admin': true,  Warehouse: false } },
+      { key: 'generateReports',   label: 'Generate Reports',              grants: { Owner: true, Admin: true,  'Warehouse Admin': false, Warehouse: false } },
+      { key: 'manageUsers',       label: 'Manage Users',                  grants: { Owner: true, Admin: true,  'Warehouse Admin': false, Warehouse: false } },
+    ],
+  }
 }
 
 function seedDb() {
   const users = seedUsers()
   return {
-    version: 7,
+    version: 13,
     // session.user = who is signed in (null = signed out → login screen).
     // Default to the admin so the demo opens ready; sign out to try other users.
     session: { user: users.find(u => u.role === 'owner') || users[0] },
@@ -340,6 +372,8 @@ function seedDb() {
     inbound: seedInbound(),      // the movements ledger (In/Out rows)
     laydown: seedLaydown(),
     transfers: seedTransfers(),
+    distributionLists: seedDistributionLists(),
+    permissions: seedPermissions(),
     seq: { transmittal: 1043, inbound: 505, laydown: 9008, user: 8, laydownPn: 48, movement: 600, transfer: 304 },
   // (transfer seq starts at 304: seeds use TRF-300..303)
   }
@@ -419,16 +453,21 @@ function visibleTransfers() {
 }
 
 // Adjust a team's on-hand for a material; create the record in the receiving
-// team if it does not exist there yet (a material carries a team).
-function adjustStock(tpn, system, delta) {
-  let r = db.materialsDb.find(x => x.tpn === tpn && x.system === system)
+// team if it does not exist there yet (a material carries a team). `warehouse` only
+// matters for that creation case - an item that already exists keeps living in its own
+// warehouse, a team transfer doesn't relocate it.
+// rowId pins the adjustment to the exact item the requester picked (so it's never ambiguous
+// which item received the stock); tpn+system is only the fallback for callers that never had
+// a specific item to point at.
+function adjustStock(tpn, system, delta, warehouse, rowId) {
+  let r = (rowId && db.materialsDb.find(x => x.rowId === rowId)) || db.materialsDb.find(x => x.tpn === tpn && x.system === system)
   if (!r && delta > 0) {
     const src = db.materialsDb.find(x => x.tpn === tpn) || {}
     r = {
       rowId: `MDB-${300 + db.materialsDb.length}`, tpn, description1: src.description1 || '', description2: src.description2 || '',
       micPartNumber: src.micPartNumber || '', type: src.type || '', spec: src.spec || '', brand: src.brand || '', supplier: src.supplier || '',
       category: src.category || '', unit: src.unit || '', location: '', remark: '', inventoryStatus: '', qtyOnHand: 0, totalInventory: 0,
-      attachmentCount: 0, picture: null, barcode: null, system,
+      attachmentCount: 0, picture: null, barcode: null, system, warehouse: warehouse || '',
     }
     db.materialsDb.unshift(r)
   }
@@ -652,6 +691,24 @@ const routes = [
   ['PATCH',  /^\/api\/users\/(\d+)$/,        async (p, init) => { const b = await readBody(init); const u = db.users.find(x => x.id === Number(p[1])); if (u) { Object.assign(u, { name: b.name ?? u.name, company: b.company ?? u.company, phone: b.phone ?? u.phone, role: b.role ?? u.role, isActive: b.isActive ?? u.isActive }); persist() } return json({ message: 'User updated' }) }],
   ['DELETE', /^\/api\/users\/(\d+)$/,        (p) => { db.users = db.users.filter(x => x.id !== Number(p[1])); persist(); return json({ message: 'User deleted' }) }],
 
+  // --- admin: email distribution lists (Warehouse / Approvers / No Show) ---
+  ['GET', /^\/api\/admin\/distribution-lists$/,  () => json(db.distributionLists)],
+  ['PUT', /^\/api\/admin\/distribution-lists\/(warehouse|approvers|noShow)$/, async (p, init) => {
+    const b = await readBody(init)
+    db.distributionLists[p[1]] = Array.isArray(b.emails) ? b.emails : []
+    persist()
+    return json({ list: db.distributionLists[p[1]] })
+  }],
+
+  // --- admin: basic illustration-only permission matrix ---
+  ['GET', /^\/api\/admin\/permissions$/,  () => json(db.permissions)],
+  ['PATCH', /^\/api\/admin\/permissions$/, async (_p, init) => {
+    const b = await readBody(init)
+    const cap = db.permissions.capabilities.find(c => c.key === b.key)
+    if (cap && db.permissions.roles.includes(b.role)) { cap.grants[b.role] = !!b.value; persist() }
+    return json({ capabilities: db.permissions.capabilities })
+  }],
+
   // --- materials catalog (filtered to the signed-in user's system) ---
   ['GET', /^\/api\/materials$/,              () => json(visibleBySystem(materials))],
 
@@ -713,6 +770,8 @@ const routes = [
   ['POST', /^\/api\/laydown\/([^/]+)\/breakdown$/,  async (p, init) => addLaydownChildren(p[1], await readBody(init))],
   ['POST', /^\/api\/laydown\/([^/]+)\/set-units-outbound$/, async (p, init) => addLaydownChildren(p[1], await readBody(init))],
   ['POST', /^\/api\/laydown\/([^/]+)\/outbound$/,   async (p, init) => { const r = outboundLaydown(p[1], await readBody(init)); return r.error ? json({ message: r.error }, 400) : json({ message: 'Outbound recorded', record: r.record }) }],
+  ['PATCH', /^\/api\/laydown\/([^/]+)$/,            async (p, init) => { const b = await readBody(init); const r = db.laydown.find(x => x.rowId === p[1]); if (r && b.fields) { Object.assign(r, b.fields); persist() } return json({ record: r || (b.fields || {}), message: 'Saved' }) }],
+  ['POST',  /^\/api\/laydown\/([^/]+)\/adjustments$/, async (p, init) => { const b = await readBody(init); const r = db.laydown.find(x => x.rowId === p[1]); if (r) { const q = Number(b.quantity || 0); const neg = b.direction === 'negative'; r.qty = Math.max(0, Number(r.qty || 0) + (neg ? -q : q)); persist() } return json({ message: 'Stock adjusted', record: r }) }],
 
   // --- rose garden (SQL / backend_v2) ---
   ['GET',  /^\/api\/rosegarden\/next-id$/,          () => json({ nextId: db.seq.laydownPn })],
@@ -730,6 +789,11 @@ const routes = [
     const t = {
       id: `TRF-${db.seq.transfer++}`,
       fromSystem: b.fromSystem || src.system || '', toSystem: b.toSystem || '',
+      fromWarehouse: src.warehouse || '', toWarehouse: b.toWarehouse || '',
+      // Pins the request to the exact items involved: the material actually picked on the
+      // sending side, and - when the receiving team already stocks it - the exact item on
+      // their side the inbound lands on (left blank when a brand new item is being created).
+      fromMaterialRowId: src.rowId || '', toMaterialRowId: b.toMaterialRowId || '',
       tpn: b.tpn || src.tpn || '', description: b.description || src.description1 || '',
       unit: b.unit || src.unit || '', qty: Number(b.qty || 0),
       status: 'Requested',
@@ -749,8 +813,8 @@ const routes = [
   ['PATCH', /^\/api\/transfers\/([^/]+)\/confirm$/, (p) => {
     const t = db.transfers.find(x => x.id === p[1]); const u = sessionUser()
     if (t && t.status === 'In Transit') {
-      adjustStock(t.tpn, t.fromSystem, -t.qty)
-      adjustStock(t.tpn, t.toSystem, t.qty)
+      adjustStock(t.tpn, t.fromSystem, -t.qty, null, t.fromMaterialRowId)
+      adjustStock(t.tpn, t.toSystem, t.qty, t.toWarehouse, t.toMaterialRowId)
       pushMovement({ movementType: 'Transfer', direction: 'Out', system: t.fromSystem, tpn: t.tpn, description1: t.description, unit: t.unit, qty: t.qty, createdBy: (u && u.name) || 'Unknown', reason: `Transfer to ${t.toSystem}` })
       pushMovement({ movementType: 'Transfer', direction: 'In', system: t.toSystem, tpn: t.tpn, description1: t.description, unit: t.unit, qty: t.qty, createdBy: (u && u.name) || 'Unknown', reason: `Transfer from ${t.fromSystem}` })
       t.status = 'Confirmed'; t.receivedBy = (u && u.name) || 'Unknown'; t.receivedAt = today(); persist()
