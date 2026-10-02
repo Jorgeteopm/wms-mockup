@@ -2,8 +2,13 @@
   <div class="max-w-6xl mx-auto space-y-5">
     <div class="flex items-start justify-between gap-4 flex-wrap">
       <div>
-        <h1 class="text-xl font-bold text-slate-800">Internal Transfer Requests</h1>
-        <p class="text-sm text-slate-400 mt-0.5">Move material between teams. Request → approve (reserved, in transit) → confirm receipt. Confirming posts an outbound from the sending team and an inbound to the receiving one.</p>
+        <h1 class="text-xl font-bold text-slate-800">Internal Team Transfers</h1>
+        <p class="text-sm text-slate-400 mt-0.5">
+          Browse another team's warehouses, pick a material they hold, and bring it in as an
+          inbound against an item in one of your own warehouses. Request → approve (reserved,
+          in transit) → confirm receipt. Confirming posts an outbound from the sending team and
+          an inbound to the receiving one.
+        </p>
       </div>
       <div class="flex items-center gap-2 text-sm">
         <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-semibold">{{ counts.inTransit }} in transit</span>
@@ -12,50 +17,72 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5">
-      <!-- Create (Owner only) -->
+      <!-- Create -->
       <div class="bg-white rounded-2xl border border-slate-100 p-4 space-y-3 self-start">
         <p class="form-label-sm">New transfer request</p>
-        <template v-if="admin">
-          <div>
-            <label class="text-xs font-semibold text-slate-500">From team (source)</label>
-            <select v-model="form.fromSystem" class="form-input mt-1" @change="form.materialRowId = ''">
-              <option value="">Select team…</option>
-              <option v-for="s in systems" :key="s" :value="s">{{ s }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-500">Material</label>
-            <select v-model="form.materialRowId" :disabled="!form.fromSystem" class="form-input mt-1">
-              <option value="">Select material…</option>
-              <option v-for="m in materialsForFrom" :key="m.rowId" :value="m.rowId">{{ m.tpn }} — {{ m.description1 }} ({{ m.qtyOnHand }} {{ m.unit }})</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-500">Qty</label>
-            <input v-model.number="form.qty" type="number" min="1" class="form-input mt-1" />
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-500">To team (receiving)</label>
-            <select v-model="form.toSystem" class="form-input mt-1">
-              <option value="">Select team…</option>
-              <option v-for="s in systems.filter(x => x !== form.fromSystem)" :key="s" :value="s">{{ s }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-slate-500">Note</label>
-            <input v-model="form.note" type="text" class="form-input mt-1" placeholder="Optional" />
-          </div>
-          <button
-            type="button"
-            @click="createTransfer"
-            :disabled="!canCreate || busy"
-            class="w-full py-2.5 text-sm font-bold text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >Request transfer</button>
-          <p v-if="msg" class="text-xs text-center" :class="msgErr ? 'text-brand-600' : 'text-emerald-600'">{{ msg }}</p>
-        </template>
-        <p v-else class="text-sm text-slate-500">
-          Only an <strong>Owner</strong> can request material from another team. You can approve, confirm or cancel transfers involving your team from the list.
-        </p>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-500">From team (another team's warehouse)</label>
+          <select v-model="form.fromSystem" class="form-input mt-1" @change="form.materialRowId = ''">
+            <option value="">Select team…</option>
+            <option v-for="s in fromSystemOptions" :key="s" :value="s">{{ s }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Material</label>
+          <select v-model="form.materialRowId" :disabled="!form.fromSystem" class="form-input mt-1">
+            <option value="">Select material…</option>
+            <option v-for="m in materialsForFrom" :key="m.rowId" :value="m.rowId">
+              {{ m.tpn }} — {{ m.description1 }} ({{ m.warehouse || 'no warehouse' }} · {{ m.qtyOnHand }} {{ m.unit }})
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Qty</label>
+          <input v-model.number="form.qty" type="number" min="1" class="form-input mt-1" />
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-500">To team (receiving)</label>
+          <select v-if="admin" v-model="form.toSystem" class="form-input mt-1">
+            <option value="">Select team…</option>
+            <option v-for="s in systems.filter(x => x !== form.fromSystem)" :key="s" :value="s">{{ s }}</option>
+          </select>
+          <p v-else class="form-input mt-1 bg-gray-50 text-slate-600">{{ mySystem }} (your team)</p>
+        </div>
+
+        <!-- Which of the receiving team's own items this inbound lands on - explicit, not
+             guessed, since a team can stock the same TPN in more than one of its warehouses. -->
+        <div v-if="effectiveToSystem && form.materialRowId">
+          <label class="text-xs font-semibold text-slate-500">Receiving item (your material)</label>
+          <select v-model="form.toMaterialRowId" class="form-input mt-1" @change="form.toWarehouse = ''">
+            <option value="">Select item…</option>
+            <option v-for="m in destinationOptions" :key="m.rowId" :value="m.rowId">
+              {{ m.tpn }} — {{ m.description1 }} ({{ m.warehouse || 'no warehouse' }} · {{ m.qtyOnHand }} {{ m.unit }})
+            </option>
+            <option value="__new__">+ New item for {{ effectiveToSystem }}…</option>
+          </select>
+        </div>
+
+        <div v-if="form.toMaterialRowId === '__new__'">
+          <label class="text-xs font-semibold text-slate-500">Receiving warehouse <span class="text-slate-400 font-normal">(new item for {{ effectiveToSystem }})</span></label>
+          <select v-model="form.toWarehouse" class="form-input mt-1">
+            <option value="">Select warehouse…</option>
+            <option v-for="w in warehouseOptions" :key="w" :value="w">{{ w }}</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Note</label>
+          <input v-model="form.note" type="text" class="form-input mt-1" placeholder="Optional" />
+        </div>
+        <button
+          type="button"
+          @click="createTransfer"
+          :disabled="!canCreate || busy"
+          class="w-full py-2.5 text-sm font-bold text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >Request transfer</button>
+        <p v-if="msg" class="text-xs text-center" :class="msgErr ? 'text-brand-600' : 'text-emerald-600'">{{ msg }}</p>
       </div>
 
       <!-- Inventory by system -->
@@ -75,6 +102,7 @@
                 <th class="px-3 py-2.5 text-left">TPN</th>
                 <th class="px-3 py-2.5 text-left">Description</th>
                 <th v-if="!invSystem" class="px-3 py-2.5 text-left">System</th>
+                <th class="px-3 py-2.5 text-left">Warehouse</th>
                 <th class="px-3 py-2.5 text-right">Qty on hand</th>
                 <th class="px-3 py-2.5 text-left">Status</th>
               </tr>
@@ -84,6 +112,7 @@
                 <td class="px-3 py-2.5 font-mono text-xs text-slate-600">{{ m.tpn }}</td>
                 <td class="px-3 py-2.5 text-slate-800">{{ m.description1 }}</td>
                 <td v-if="!invSystem" class="px-3 py-2.5 text-slate-600">{{ m.system || '—' }}</td>
+                <td class="px-3 py-2.5 text-slate-600">{{ m.warehouse || '—' }}</td>
                 <td class="px-3 py-2.5 text-right font-semibold text-slate-700">{{ m.qtyOnHand }} {{ m.unit }}</td>
                 <td class="px-3 py-2.5">
                   <span class="px-2 py-0.5 rounded-full text-xs font-semibold border" :class="inventoryStatusClass(m.inventoryStatus)">{{ m.inventoryStatus || '—' }}</span>
@@ -123,9 +152,12 @@
                 <div class="text-xs text-slate-400 font-mono">{{ t.tpn }}</div>
               </td>
               <td class="px-3 py-2.5 whitespace-nowrap">
-                <span class="font-semibold text-slate-700">{{ t.fromSystem }}</span>
-                <span class="text-slate-300"> → </span>
-                <span class="font-semibold text-slate-700">{{ t.toSystem }}</span>
+                <div>
+                  <span class="font-semibold text-slate-700">{{ t.fromSystem }}</span>
+                  <span class="text-slate-300"> → </span>
+                  <span class="font-semibold text-slate-700">{{ t.toSystem }}</span>
+                </div>
+                <div class="text-xs text-slate-400">{{ t.fromWarehouse || '—' }} → {{ t.toWarehouse || '—' }}</div>
               </td>
               <td class="px-3 py-2.5 text-right">{{ t.qty }} {{ t.unit }}</td>
               <td class="px-3 py-2.5">
@@ -148,7 +180,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { user } from '../composables/useAuth.js'
 import { isAdmin } from '../utils/roles.js'
 import { inventoryStatusClass } from '../config/statusColors.js'
@@ -165,18 +197,53 @@ const msgErr = ref(false)
 const mySystem = computed(() => user.value?.system || null)
 const admin = computed(() => isAdmin(user.value))
 
-const form = reactive({ fromSystem: '', toSystem: '', materialRowId: '', qty: 1, note: '' })
+const form = reactive({ fromSystem: '', toSystem: '', materialRowId: '', qty: 1, toMaterialRowId: '', toWarehouse: '', note: '' })
 const invSystem = ref(mySystem.value || '')
 
 const inventoryForSystem = computed(() =>
   invSystem.value ? materials.value.filter(m => m.system === invSystem.value) : materials.value
 )
 
+// A team rep only ever requests INTO their own team; only an Owner (no system of their own)
+// gets to pick an arbitrary destination, acting on a team's behalf.
+const effectiveToSystem = computed(() => admin.value ? form.toSystem : mySystem.value)
+
+// "From team" only ever offers OTHER teams' warehouses - never your own.
+const fromSystemOptions = computed(() => systems.filter(s => s !== effectiveToSystem.value))
+
 const materialsForFrom = computed(() =>
   form.fromSystem ? materials.value.filter(m => m.system === form.fromSystem) : []
 )
+
+const selectedMaterial = computed(() => materials.value.find(m => m.rowId === form.materialRowId) || null)
+
+// Every existing item the receiving team already has, so the requester explicitly picks
+// which one the inbound lands on (a team can stock the same TPN at more than one of its
+// warehouses) - "+ New item" covers a TPN the receiving team doesn't stock yet.
+const destinationOptions = computed(() =>
+  effectiveToSystem.value ? materials.value.filter(m => m.system === effectiveToSystem.value) : []
+)
+
+// If exactly one of the receiving team's items already matches this TPN, that's almost
+// certainly the one being topped up - pre-select it, but leave it changeable.
+watch([selectedMaterial, effectiveToSystem], ([material, toSystem]) => {
+  form.toMaterialRowId = ''
+  form.toWarehouse = ''
+  if (!material || !toSystem) return
+  const matches = materials.value.filter(m => m.system === toSystem && m.tpn === material.tpn)
+  if (matches.length === 1) form.toMaterialRowId = matches[0].rowId
+})
+
+const warehouseOptions = computed(() => {
+  const seen = new Set()
+  for (const m of materials.value) { if (m.warehouse) seen.add(m.warehouse) }
+  return [...seen].sort((a, b) => a.localeCompare(b))
+})
+
 const canCreate = computed(() =>
-  form.fromSystem && form.toSystem && form.fromSystem !== form.toSystem && form.materialRowId && form.qty > 0
+  form.fromSystem && effectiveToSystem.value && form.fromSystem !== effectiveToSystem.value &&
+  form.materialRowId && form.qty > 0 &&
+  form.toMaterialRowId && (form.toMaterialRowId !== '__new__' || form.toWarehouse)
 )
 const counts = computed(() => ({
   inTransit: transfers.value.filter(t => t.status === 'In Transit').length,
@@ -210,13 +277,19 @@ async function createTransfer() {
   if (!canCreate.value) return
   busy.value = true; msg.value = ''
   try {
-    const m = materials.value.find(x => x.rowId === form.materialRowId) || {}
+    const m = selectedMaterial.value || {}
+    const creatingNew = form.toMaterialRowId === '__new__'
+    const toMaterialRowId = creatingNew ? '' : form.toMaterialRowId
+    const toWarehouse = creatingNew ? form.toWarehouse : (destinationOptions.value.find(d => d.rowId === form.toMaterialRowId)?.warehouse || '')
     await fetch('/api/transfers', {
       method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromSystem: form.fromSystem, toSystem: form.toSystem, materialRowId: form.materialRowId, tpn: m.tpn, description: m.description1, unit: m.unit, qty: form.qty, note: form.note }),
+      body: JSON.stringify({
+        fromSystem: form.fromSystem, toSystem: effectiveToSystem.value, materialRowId: form.materialRowId,
+        tpn: m.tpn, description: m.description1, unit: m.unit, qty: form.qty, toMaterialRowId, toWarehouse, note: form.note,
+      }),
     })
     msgErr.value = false; msg.value = 'Transfer requested.'
-    form.materialRowId = ''; form.qty = 1; form.note = ''
+    form.materialRowId = ''; form.qty = 1; form.toMaterialRowId = ''; form.toWarehouse = ''; form.note = ''
     await load()
   } catch { msgErr.value = true; msg.value = 'Could not create the transfer.' }
   finally { busy.value = false }

@@ -184,7 +184,7 @@ async function submit() {
       return
     }
     user.value = data.user
-    router.push('/admin/transmittals')
+    router.push('/dashboards')
   } catch {
     error.value = 'Unable to connect. Please try again.'
   } finally {

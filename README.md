@@ -65,13 +65,14 @@ signed, the dashboard shows who we await next, and `transmittalStatus` flips to
 | Transmittal (awaiting approver) | `#/transmittal/TR-1040` |
 | Transmittal (awaiting warehouse) | `#/transmittal/TR-1042` |
 | Transmittal (completed) | `#/transmittal/TR-1041` |
-| Dashboard | `#/admin/transmittals` |
-| Log Report | `#/admin/reports/transmittal-log` |
-| Report Builder | `#/admin/reports/builder` |
-| User Management | `#/admin/users` |
-| Materials — Material (Pinnacle) / Equipment (Laydown) | `#/materials-hub` |
+| Dashboards — Transmittals / Materials / Equipment | `#/dashboards` |
+| Reports — Report Builder / Log Report | `#/reports` |
+| Admin Portal (user management) | `#/admin/users` |
+| Inbound Forms — Material (Pinnacle) / Equipment (Laydown) | `#/inbound-hub` |
+| Outbound Forms — Transmittals / Material (Pinnacle) / Equipment (Laydown) / Internal Team Transfers | `#/outbound` |
+| Inventory — Material (Pinnacle) / Equipment (Laydown) | `#/inventory` |
 
-### Report Builder (`Reports` in the nav)
+### Report Builder (`Reports`, next to Dashboards)
 
 Build custom reports and export them:
 
